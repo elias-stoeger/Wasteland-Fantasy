@@ -98,6 +98,7 @@ class Square:
         self.description = self.get_description()
         self.tier = 0
         self.music = None
+        self.NPCs = None
 
     def inhabs(self):
         return "todo"

@@ -182,6 +182,14 @@ def prep_square(last_square):
     World.current_Square.description = World.current_Square.get_description()
     Screen.delete("0.1", END)
     Screen.insert(INSERT, f"{World.current_Square.description}")
+    if World.current_Square.NPCs is None and World.current_Square.state != "clear":
+        World.current_Square.NPCs = Enemy(World.current_Square.tier - 1)
+        print(World.current_Square.NPCs.name)
+        if World.current_Square.NPCs.name in Enemies[World.current_Square.tier - 1]:
+            Screen.insert(INSERT, appear(World.current_Square.NPCs.name))
+        elif World.current_Square.NPCs.name in NPC:
+            print(appear_npc(World.current_Square.NPCs.name))
+            Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
     if last_square.music is not World.current_Square.music:
         mixer_music.fadeout(500)
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")

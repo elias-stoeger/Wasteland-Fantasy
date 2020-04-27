@@ -14,6 +14,7 @@ class Player:
         self.equipped = []
         self.ready = False
         self.busy = False
+        self.combat = False
 
     def pond(self):
         return f"My Name is {self.name}\nI am {self.race} by birth\n" \
