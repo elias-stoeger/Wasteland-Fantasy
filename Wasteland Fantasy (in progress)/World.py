@@ -133,20 +133,20 @@ class Square:
             return "What is you doing??"
 
 
-woods = ["You are surrounded by high trees and mushrooms\nThe light smell of the pines soothes you\n\n",
-         "You struggle to walk through the dense flora\nEvery step you trip over another vine spanning\nbetween the trees.\n\n",
-         "There is nothing like a relaxing stroll through\nthese beautiful woods\nIf only the air wasn't so toxic..",
+woods = ["You are surrounded by high trees and mushrooms\nThe light smell of the pines soothes you\n",
+         "You struggle to walk through the dense flora\nEvery step you trip over another vine spanning\nbetween the trees.\n",
+         "There is nothing like a relaxing stroll through\nthese beautiful woods\nIf only the air wasn't so toxic..\n",
          "It sure is quiet in these lush woods..\nWAIT.. nevermind, it was just another Snider\n",
-         "The trees are dancing in a warm breeze...\nIt really is nice here, I wonder where i am, though.."]
+         "The trees are dancing in a warm breeze...\nIt really is nice here, I wonder where i am, though..\n"]
 
 
-rocky = ["\"Sharp stones all around, i really don't want\nto trip here\"",
-         "Who knows what is hiding between those bolders?\nI have heard rumors of adders nesting around\nthese field.\nBetter not find out...",
+rocky = ["\"Sharp stones all around, i really don't want\nto trip here\"\n",
+         "Who knows what is hiding between those bolders?\nI have heard rumors of adders nesting around\nthese field.\nBetter not find out...\n",
          "The knife-like stones cut deep into your feet.\nWhat creatures could be tough enough to\nlive here?",
-         "You struggle to climb over the heaps of rocks\nand bolders.\nOne wrong step and you may brake more\nthan just a limb.."]
+         "You struggle to climb over the heaps of rocks\nand bolders.\nOne wrong step and you may brake more\nthan just a limb..\n"]
 
 
-grassland = ["Ah, a nice, wide field of grass",
-             "Who knows what is hiding in the high grass...",
-             "Did i just hear someone call for me in the high\ngrass....\nMust have been my imagination..",
-             "I could just lie down on a soft patch and enjoy\nthe sun!\nNo, i should get going..."]
+grassland = ["Ah, a nice, wide field of grass\n",
+             "Who knows what is hiding in the high grass...\n",
+             "Did i just hear someone call for me in the high\ngrass....\nMust have been my imagination..\n",
+             "I could just lie down on a soft patch and enjoy\nthe sun!\nNo, i should get going...\n"]
