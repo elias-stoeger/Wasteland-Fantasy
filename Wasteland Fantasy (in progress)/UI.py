@@ -11,6 +11,8 @@ from pygame import mixer, mixer_music
 # All music is royalty free and from https://www.bensound.com/royalty-free-music
 # or the youtube channel https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
 
+# Play it on Linux for the prettiest experience
+
 root = Tk()
 root.geometry("893x664+100+100")
 root.title("Wasteland Fantasy")
@@ -37,7 +39,7 @@ if OS == "Windows":
     # The failed abortion of an OS that is Windows
     # messes up the font, displaying it blurry so
     # I use this line to fix that complete bs
-    windll.shcore.SetProcessDpiAwareness(1)
+    windll.shcore.SetProcessDpiAwareness(2)
     # Thanks for nothing, Bill
 
 
@@ -67,7 +69,10 @@ else:
 
 def help_():
     help_pop = Toplevel()
-    help_pop.geometry("400x300")
+    if OS == "Windows":
+        help_pop.geometry("400x340")
+    else:
+        help_pop.geometry("400x300")
     help_pop.title("Help")
     Text_ = Label(help_pop, anchor=W, justify="left",
                   text="Here is how this game is played:\n\n"
@@ -84,6 +89,8 @@ def help_():
                        "I am sure you will figure the rest out yourself...\n\n"
                        "I hope you enjoy :)")
     Text_.grid(row=0, column=0)
+    if OS == "Windows":
+        Text_.config(font=("Times", 12))
     Text_.grab_set()
     help_pop.transient()
 
@@ -308,7 +315,10 @@ def levelup():
 
 def intro_combat():
     help_pop = Toplevel()
-    help_pop.geometry("350x258")
+    if OS == "Windows":
+        help_pop.geometry("350x300")
+    else:
+        help_pop.geometry("350x258")
     help_pop.title("Combat")
     Text_ = Label(help_pop, anchor=W, justify="left",
                   text="It seems like this is your first time fighting\n"
@@ -323,6 +333,8 @@ def intro_combat():
                        "the enemy, if it fails it's the enemies turn.\n"
                        "All clear?\n\nWaidmanns Heil, adventurer!")
     Text_.grid(row=0, column=0)
+    if OS == "Windows":
+        Text_.config(font=("Times", 12))
     Text_.grab_set()
     help_pop.transient()
 
@@ -332,7 +344,7 @@ def inventory():
     inv_pop.geometry("400x300")
     inv_pop.title("Your Backpack")
     if DB is None:
-        Text_ = Label(inv_pop, anchor=W, justify="left", text="Nothing in here yet...")
+        Text_ = Label(inv_pop, anchor=W, justify="left", font=("Times", 12), text="Nothing in here yet...")
     else:
         Text_ = Label(inv_pop, anchor=W, justify="left", text="Implement once you have a DB")
     Text_.grid(row=0, column=0)
@@ -381,6 +393,8 @@ def character():
     else:
         Text_ = Label(char_pop, anchor=W, justify="left", text=Player.pond())
     Text_.grid(row=0, column=0)
+    if OS == "Windows":
+        Text_.config(font=("Times", 12))
 
 
 Input = Entry(root, text="Write a command...")
@@ -397,7 +411,7 @@ Character_b.grid(row=3, column=3, sticky=SW, padx=100)
 Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=40)
 if OS == "Windows":
     Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=50)
-    Log = Text(root, bg="#d9d9d9", height=15, width=20, relief="ridge", font=("Times", 12))
+    Log = Text(root, bg="#d9d9d9", height=15, width=20, relief="groove", font=("Times", 12))
 else:
     Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=50)
     Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12))
