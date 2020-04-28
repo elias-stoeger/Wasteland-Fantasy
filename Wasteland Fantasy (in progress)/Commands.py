@@ -3,7 +3,7 @@ import re
 
 def commands(command):
     x = r"[w|W]est$|[n|N]orth$|[s|S]outh$|[e|E]ast$"
-    pond = r"[p|P]ond$"
+    pond = r"[p|P]ond$|[w|W]ater$"
     info_newtfolk = r"[i|I]nfo\s[n|N]ewtfolk"
     info_bathy = r"[i|I]nfo\s[b|B]athynomic"
     info_whisp = r"[i|I]nfo\s[w|W]hispling"
@@ -14,7 +14,8 @@ def commands(command):
     whisp = r"[w|W]hispling"
     void = r"[v|V]oidspawn"
     ursine = r"[u|U]rsine"
-
+    attack = r"^[a|A]ttack|^[h|H]it|^[s|S]trike|^[s|S]ma[sh|ck]"
+    flee = r"^[r|R]un\s?|^[f|F]lee\s?"
     check = re.search(x, command)
     check_pond = re.search(pond, command)
     check_newt = re.search(info_newtfolk, command)
@@ -27,6 +28,8 @@ def commands(command):
     check_whisp_ = re.search(whisp, command)
     check_void_ = re.search(void, command)
     check_ursine_ = re.search(ursine, command)
+    check_attack = re.search(attack, command)
+    check_flee = re.search(flee, command)
     if check:
         return move(check.group(0))
     elif check_pond:
@@ -51,6 +54,10 @@ def commands(command):
         return "Voidspawn"
     elif check_ursine_:
         return "Ursine"
+    elif check_attack:
+        return "attack"
+    elif check_flee:
+        return "flee"
 
 
 def infos(race):

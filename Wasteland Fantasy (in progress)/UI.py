@@ -47,6 +47,7 @@ if OS == "Windows":
 class Everything:
     def __init__(self):
         self.pnd = "False"
+        self.doneCombat = False
 
 
 Everything = Everything()
@@ -107,6 +108,7 @@ def enter(event=None):
     Input.delete(0, "end")
     com = commands(x)
     Screen.config(state=NORMAL)
+    Log.config(state=NORMAL)
     last_square = World.current_Square
     if com == "pond" or Everything.pnd is True:
         if Everything.pnd is True and Player.name is None:
@@ -127,7 +129,6 @@ def enter(event=None):
             Screen.delete('1.0', END)
             Screen.insert(INSERT, f"You gaze into the water and see your reflection:\n\n{Player.pond()}\n\n\n"
                                   f"Use the cardinal directions (North, East, South and West)\nto move around")
-            Log.config(state=NORMAL)
             Log.insert(INSERT, "\nYou remembered who \nyou are\n\n")
             Everything.pnd = False
         elif World.current_Square.type == "start" and World.current_Square.state is None and Everything.pnd == "False":
@@ -144,7 +145,7 @@ def enter(event=None):
     elif com == "pond" and Player.ready is True and World.current_Square.type == "start":
         Screen.delete('1.0', END)
         Screen.insert(INSERT, f"You gaze into the water and see your reflection:\n\n{Player.pond()}")
-    elif com in ["w", "n", "e", "s"] and Player.ready is True and Player.busy is False:
+    elif com in ["w", "n", "e", "s"] and Player.ready is True and Player.busy is False and Player.combat is False:
         x = World.current_Square.coords.split(",")[0]
         y = World.current_Square.coords.split(",")[1]
         if com == "w":
@@ -166,6 +167,39 @@ def enter(event=None):
             World.current_Square = Square(newSquare)
             World.Squares.append(World.current_Square)
         prep_square(last_square)
+    elif com == "attack":
+        if Player.combat is False:
+            Screen.delete("1.0", END)
+            Screen.insert(INSERT, "There is nothing to attack here..\nYou decide to punch the ground instead")
+        else:
+            combat()
+    elif com == "flee":
+        if Player.combat is False:
+            Screen.delete("1.0", END)
+            Screen.insert(INSERT, "You start running in circles in panic!\nBut wait.. where is the threat?")
+        else:
+            rng = random.randint(0, 9)
+            if rng > 4:
+                x = World.current_Square.coords.split(",")[0]
+                y = World.current_Square.coords.split(",")[1]
+                newSquare = random.choice([f"{int(x)},{int(y) - 1}", f"{int(x)},{int(y) + 1}",
+                                          f"{int(x) - 1},{int(y)}", f"{int(x) + 1},{int(y)}"])
+                coords = []
+                for s in World.Squares:
+                    coords.append(s.coords)
+                if newSquare in coords:
+                    for t in World.Squares:
+                        if t.coords == newSquare:
+                            World.current_Square = t
+                else:
+                    World.current_Square = Square(newSquare)
+                    World.Squares.append(World.current_Square)
+                prep_square(last_square)
+                Player.combat = False
+            else:
+                enemy_turn()
+    Screen.see("end")
+    Log.see("end")
     Screen.config(state=DISABLED)
     Log.config(state=DISABLED)
 
@@ -184,16 +218,113 @@ def prep_square(last_square):
     Screen.insert(INSERT, f"{World.current_Square.description}")
     if World.current_Square.NPCs is None and World.current_Square.state != "clear":
         World.current_Square.NPCs = Enemy(World.current_Square.tier - 1)
-        print(World.current_Square.NPCs.name)
         if World.current_Square.NPCs.name in Enemies[World.current_Square.tier - 1]:
             Screen.insert(INSERT, appear(World.current_Square.NPCs.name))
+            Player.combat = True
+            if Everything.doneCombat is False:
+                intro_combat()
+                Everything.doneCombat = True
         elif World.current_Square.NPCs.name in NPC:
-            print(appear_npc(World.current_Square.NPCs.name))
             Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
+    elif World.current_Square.NPCs is not None and World.current_Square.state != "clear":
+        Screen.insert(INSERT, appear(World.current_Square.NPCs.name))
+        Player.combat = True
     if last_square.music is not World.current_Square.music:
         mixer_music.fadeout(500)
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")
         mixer_music.play(-1)
+
+
+def enemy_turn():
+    e_rng = random.randint(0, 9)
+    if e_rng < 3:
+        Screen.insert(INSERT, f"The clumsy attack from {World.current_Square.NPCs.name}\n"
+                              f"misses by a hairs breath...\n")
+    elif e_rng == 9:
+        Screen.insert(INSERT, f"A critical hit! You take {World.current_Square.NPCs.dmg * 2} damage.\n")
+        Player.current_hp -= World.current_Square.NPCs.dmg * 2
+        if Player.current_hp <= 0:
+            Screen.insert(INSERT, "You succumb to your injuries...")
+    else:
+        Player.current_hp -= World.current_Square.NPCs.dmg
+        Screen.insert(INSERT, f"You take {World.current_Square.NPCs.dmg} damage...\n")
+
+
+def combat():
+    rng = random.randint(0, 9)
+    if rng == 0:
+        Screen.insert(INSERT, "You missed! That sucks..\n")
+        enemy_turn()
+    elif rng == 9:
+        Screen.insert(INSERT, "A devastating hit!\n")
+        World.current_Square.NPCs.hp -= Player.dmg * 2
+        if World.current_Square.NPCs.hp <= 0:
+            Screen.insert(INSERT, f"You defeated {World.current_Square.NPCs.name}.")
+            Player.combat = False
+            World.current_Square.state = "clear"
+            Log.insert(INSERT, f"you have slain\n{World.current_Square.NPCs.name}\n\n")
+            reward()
+            World.current_Square.NPCs = None
+        else:
+            Screen.insert(INSERT, f"It sure is hard to kill {World.current_Square.NPCs.name}\n"
+                                  f"It has {World.current_Square.NPCs.hp} left.\n")
+            enemy_turn()
+    else:
+        World.current_Square.NPCs.hp -= Player.dmg
+        if World.current_Square.NPCs.hp <= 0:
+            Screen.insert(INSERT, f"You hit doing {Player.dmg} damage\nYou defeated {World.current_Square.NPCs.name}.\n")
+            Player.combat = False
+            World.current_Square.state = "clear"
+            Log.insert(INSERT, f"you have slain\n{World.current_Square.NPCs.name}\n\n")
+            reward()
+            World.current_Square.NPCs = None
+        else:
+            Screen.insert(INSERT, f"You hit doing {Player.dmg} damage\n"
+                                  f"The foe still has {World.current_Square.NPCs.hp} health point left\n")
+            enemy_turn()
+
+
+def reward():
+    if Player.race == "Newtfolk":
+        if Player.current_hp < Player.max_hp:
+            Player.current_hp += 1
+            Screen.insert(INSERT, "\nYou regrow a toe or two\n")
+    Player.exp += World.current_Square.NPCs.tier + 1
+    if Player.exp >= Player.exp2lvl:
+        Player.exp -= Player.exp2lvl
+        Player.level += 1
+        Player.current_hp += 1
+        Player.max_hp += 1
+        Player.exp2lvl = Player.level ** 2 + 2
+        Screen.insert(INSERT, f"You reached the next level! Level {Player.level}\n")
+
+
+def levelup():
+    Player.level += 1
+    Player.current_hp += 1
+    Player.max_hp += 1
+    Screen.insert(INSERT, f"You reached the next Level: Level {Player.level}!\n"
+                          f"You now have {Player.max_hp} maximum HP\nand {Player.current_hp} current HP.\n")
+
+
+def intro_combat():
+    help_pop = Toplevel()
+    help_pop.geometry("350x240")
+    help_pop.title("Combat")
+    Text_ = Label(help_pop, anchor=W, justify="left",
+                  text="It seems like this is your first time fighting\n"
+                       "in Wasteland Fantasy so let me give you a quick\n"
+                       "Introduction:\n"
+                       "Most of it is luck-based, you have 2 options\n"
+                       "You either attack the enemy doing your damage\n"
+                       "and seeing if he dies, if not, he will attack...\n\n"
+                       "Or you flee, this has a 60% chance of working\n"
+                       "and will place you on a random square around\n"
+                       "the enemy, if it fails it's the enemies turn.\n"
+                       "All clear?\nWaidmanns Heil, adventurer!")
+    Text_.grid(row=0, column=0)
+    Text_.grab_set()
+    help_pop.transient()
 
 
 def inventory():

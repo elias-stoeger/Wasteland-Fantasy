@@ -5,9 +5,9 @@ class Player:
         self.max_hp = 10
         self.current_hp = self.max_hp
         self.exp = 0
-        self.exp2lvl = 1  # Maybe do (level +1)^2
-        self.dmg = 1
         self.level = 0
+        self.exp2lvl = 1
+        self.dmg = 1
         self.defense = 0
         self.evasion = 1
         self.inventory = []
@@ -31,7 +31,7 @@ class Player:
         elif self.race == "Whispling":
             self.evasion = 2
         elif self.race == "Voidspawn":
-            self.dmg = 3
+            self.dmg = 2
         elif self.race == "Ursine":
             self.max_hp = 14
             self.current_hp = 14

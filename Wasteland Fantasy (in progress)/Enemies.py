@@ -6,10 +6,11 @@ class Enemy:
         self.tier = tier
         self.loot = None
         self.name = self.enemy()
+        self.hp = random.choice([tier + 1, tier + 2, tier + 3])
+        self.dmg = random.choice([tier + 1, tier + 2])
 
     def enemy(self):
         rng = random.randint(0, 9)
-        print(rng)
         if rng < 5:
             return None
         elif rng > 5:
@@ -31,7 +32,7 @@ NPC = ["Gambler", "Trader", "Guide"]
 
 def appear(enemy):
     Appearances_Enemy = [f"\n\nWatch out!\nYou see {enemy} charging at you\n",
-                         f"\n\nYou just barely manage to dodge the mighty first\nsweep of {enemy}"]
+                         f"\n\nYou just barely manage to dodge the mighty first\nsweep of {enemy}\n"]
     return random.choice(Appearances_Enemy)
 
 
