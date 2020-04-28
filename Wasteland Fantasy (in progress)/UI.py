@@ -169,14 +169,12 @@ def enter(event=None):
         prep_square(last_square)
     elif com == "attack":
         if Player.combat is False:
-            Screen.delete("1.0", END)
-            Screen.insert(INSERT, "There is nothing to attack here..\nYou decide to punch the ground instead")
+            Screen.insert(INSERT, "\nThere is nothing to attack here..\nYou decide to punch the ground instead\n")
         else:
             combat()
     elif com == "flee":
         if Player.combat is False:
-            Screen.delete("1.0", END)
-            Screen.insert(INSERT, "You start running in circles in panic!\nBut wait.. where is the threat?")
+            Screen.insert(INSERT, "\nYou start running in circles in panic!\nBut wait.. where is the threat?\n")
         else:
             rng = random.randint(0, 9)
             if rng > 4:
@@ -194,9 +192,10 @@ def enter(event=None):
                 else:
                     World.current_Square = Square(newSquare)
                     World.Squares.append(World.current_Square)
-                prep_square(last_square)
                 Player.combat = False
+                prep_square(last_square)
             else:
+                Screen.insert(INSERT, "\nYou try to run but your trip over your legs while turning...\n\n")
                 enemy_turn()
     Screen.see("end")
     Log.see("end")
@@ -267,7 +266,7 @@ def combat():
             World.current_Square.NPCs = None
         else:
             Screen.insert(INSERT, f"It sure is hard to kill {World.current_Square.NPCs.name}\n"
-                                  f"It has {World.current_Square.NPCs.hp} left.\n")
+                                  f"It has {World.current_Square.NPCs.hp} HP left.\n")
             enemy_turn()
     else:
         World.current_Square.NPCs.hp -= Player.dmg
@@ -280,7 +279,7 @@ def combat():
             World.current_Square.NPCs = None
         else:
             Screen.insert(INSERT, f"You hit doing {Player.dmg} damage\n"
-                                  f"The foe still has {World.current_Square.NPCs.hp} health point left\n")
+                                  f"The foe still has {World.current_Square.NPCs.hp} HP left\n")
             enemy_turn()
 
 
@@ -309,19 +308,20 @@ def levelup():
 
 def intro_combat():
     help_pop = Toplevel()
-    help_pop.geometry("350x240")
+    help_pop.geometry("350x258")
     help_pop.title("Combat")
     Text_ = Label(help_pop, anchor=W, justify="left",
                   text="It seems like this is your first time fighting\n"
                        "in Wasteland Fantasy so let me give you a quick\n"
                        "Introduction:\n"
-                       "Most of it is luck-based, you have 2 options\n"
+                       "Most of it is luck-based, you have 3 options\n"
                        "You either attack the enemy doing your damage\n"
                        "and seeing if he dies, if not, he will attack...\n\n"
+                       "You can use an item from your inventory...\n\n"
                        "Or you flee, this has a 60% chance of working\n"
                        "and will place you on a random square around\n"
                        "the enemy, if it fails it's the enemies turn.\n"
-                       "All clear?\nWaidmanns Heil, adventurer!")
+                       "All clear?\n\nWaidmanns Heil, adventurer!")
     Text_.grid(row=0, column=0)
     Text_.grab_set()
     help_pop.transient()
