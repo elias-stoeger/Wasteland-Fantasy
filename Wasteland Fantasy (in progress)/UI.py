@@ -304,10 +304,18 @@ def prep_square(last_square):
                 intro_combat()
                 Everything.doneCombat = True
         elif World.current_Square.NPCs.name in NPC:
+            World.current_Square.state = "clear"
             Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
+        else:
+            World.current_Square.state = "clear"
     elif World.current_Square.NPCs is not None and World.current_Square.state != "clear":
         Screen.insert(INSERT, appear(World.current_Square.NPCs.name))
         Player.combat = True
+    elif World.current_Square.NPCs is not None and World.current_Square.state == "clear":
+        if World.current_Square.NPCs.name is None:
+            pass
+        else:
+            Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
     if last_square.music is not World.current_Square.music:
         mixer_music.fadeout(500)
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")

@@ -4,7 +4,6 @@ import random
 class Enemy:
     def __init__(self, tier):
         self.tier = tier
-        self.loot = None
         self.name = self.enemy()
         self.hp = random.choice([tier + 1, tier + 2, tier + 3])
         self.dmg = random.choice([tier + 1, tier + 2])

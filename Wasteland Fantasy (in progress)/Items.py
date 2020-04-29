@@ -31,7 +31,7 @@ Items_tier1 = {"a Knfoon": [1, 0, 1],   # Knife + Fork + Spoon
                "a hand full of razor blades": [2, 0, 0],
                "Pants with Ants": [0, 0, 2],
                "fluffy mittens": [0, 2, 0],
-               "Sandpaper glove": [1, 1, 0],
+               "sandpaper glove": [1, 1, 0],
                "rollerskating gear": [0, 1, 1]}
 
 potion = {"a mysterious liquid": [0, 0, 0]}
