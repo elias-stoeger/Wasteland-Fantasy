@@ -141,9 +141,9 @@ woods = ["You are surrounded by high trees and mushrooms\nThe light smell of the
          "The trees are dancing in a warm breeze...\nIt really is nice here, I wonder where i am, though..\n"]
 
 
-rocky = ["\"Sharp stones all around, i really don't want\nto trip here\"\n",
+rocky = ["\"Sharp stones all around, i really don't want\nto trip here\"\n\n",
          "Who knows what is hiding between those bolders?\nI have heard rumors of adders nesting around\nthese field.\nBetter not find out...\n",
-         "The knife-like stones cut deep into your feet.\nWhat creatures could be tough enough to\nlive here?",
+         "The knife-like stones cut deep into your feet.\nWhat creatures could be tough enough to\nlive here?\n",
          "You struggle to climb over the heaps of rocks\nand bolders.\nOne wrong step and you may brake more\nthan just a limb..\n"]
 
 

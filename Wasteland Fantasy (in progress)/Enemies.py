@@ -31,8 +31,8 @@ NPC = ["Gambler", "Trader", "Guide"]
 
 
 def appear(enemy):
-    Appearances_Enemy = [f"\n\nWatch out!\nYou see {enemy} charging at you\n",
-                         f"\n\nYou just barely manage to dodge the mighty first\nsweep of {enemy}\n"]
+    Appearances_Enemy = [f"\nWatch out!\nYou see {enemy} charging at you\n",
+                         f"\nYou just barely manage to dodge the mighty first\nsweep of {enemy}\n"]
     return random.choice(Appearances_Enemy)
 
 

@@ -36,21 +36,21 @@ Items_tier1 = {"a Knfoon": [1, 0, 1],   # Knife + Fork + Spoon
 
 potion = {"a mysterious liquid": [0, 0, 0]}
 
-Items_tier0_d = {"a sharp rock": "It's a rock with a pointy end\nWould be even cooler on a stick...\n",
-               "most of a fork": "It is missing most of the spikes and\nthe hilt is bent. Still better than nothing...\n",
-               "grass armor": "Tufts of grass glued to what used to be a shirt\n",
-               "a beanie full of ants": "A little protection but at what cost...\n",
-               "a few extra legs": "You can never have enough of those!\n",
-               "blinking sneakers": "I am speed\n"}
+Items_tier0_d = {"a sharp rock": "It's a rock with a pointy end\n~Would be even cooler on a stick...\n",
+                 "most of a fork": "It is missing most of the spikes and\n~the hilt is bent. Still better than nothing...\n",
+                 "grass armor": "Tufts of grass glued to what\n~used to be a shirt\n",
+                 "a beanie full of ants": "A little protection but at what cost...\n",
+                 "a few extra legs": "You can never have enough of those!\n",
+                 "blinking sneakers": "I am speed\n"}
 
-Items_tier1_d = {"a Knfoon": "A knife, a fork and a spoon all in one?\nSign me the frick up!\n",
-               "a hand full of razor blades": "I wonder who's hand this was\nAnd why it is holding those...\n",
-               "Pants with Ants": "They *scratch scratch* make you *scratch scratch*\nsuper dodgy *scratch scratch*\n",
-               "fluffy mittens": "Protect from spiky stuff and keep you warm\n",
-               "Sandpaper glove": "Put the smooth side your way and the\nrough one the enemies...\n",
-               "rollerskating gear": "May not look the coolest but it\nprovides some protection.\nEven when not skating!\n"}
+Items_tier1_d = {"a Knfoon": "A knife, a fork and a spoon all in one?\n~Sign me the frick up!\n",
+                 "a hand full of razor blades": "I wonder who's hand this was\n~And why it is holding those...\n",
+                 "Pants with Ants": "They *scratch scratch* make you *scratch*\n~super dodgy *scratch scratch*\n",
+                 "fluffy mittens": "Protect from spiky stuff and keep you warm\n",
+                 "sandpaper glove": "Put the smooth side your way and the\n~rough one the enemies...\n",
+                 "rollerskating gear": "May not look the coolest but it\nprovides some protection.\n~Even when not skating!\n"}
 
-potion_d = {"a mysterious liquid": "Could be good, could be bad...\n Only one way to find out ¯\_(ツ)_/¯\n"}
+potion_d = {"a mysterious liquid": "Could be good, could be bad...\n~Only one way to find out ¯\_(ツ)_/¯\n"}
 
 items = list(Items_tier0.items()) + list(Items_tier1.items()) + list(potion.items())
 descriptions = list(Items_tier0_d.items()) + list(Items_tier1_d.items()) + list(potion_d.items())
@@ -59,3 +59,18 @@ descriptions = list(Items_tier0_d.items()) + list(Items_tier1_d.items()) + list(
 def get_item():
     item = random.choice(items)
     return Item(item[0], item[1])
+
+
+synonyms = {"a sharp rock": ["a sharp rock", "sharp rock", "rock", "the sharp rock"],
+            "most of a fork": ["most of a fork", "fork", "Fork", "most of fork"],
+            "grass armor": ["grass armor", "Grass Armor", "a grass armor"],
+            "a beanie full of ants": ["a beanie full of ants", "beanie full of ants", "Beanie", "beanie", "a beanie"],
+            "a few extra legs": ["a few extra legs", "extra legs", "legs", "few extra legs", "Legs"],
+            "blinking sneakers": ["blinking sneakers", "sneakers", "Blinking Sneakers", "Sneakers"],
+            "a Knfoon": ["a Knfoon", "Knfoon", "knfoon", "the knfoon", "a knfoon"],
+            "a hand full of razor blades": ["a hand full of razor blades", "hand full of razor blades", "razor blades"],
+            "Pants with Ants": ["Pants with Ants", "pants with ants", "pants", "Pants"],
+            "fluffy mittens": ["fluffy mittens", "Fluffy mittens", "Fluffy Mittens", "fluffy Mittens", "mittens", "Mittens"],
+            "sandpaper glove": ["sandpaper glove", "Sandpaper glove", "Sandpaper Glove", "sandpaper", "glove"],
+            "rollerskating gear": ["rollerskating gear", "skating gear", "gear", "Gear"],
+            "a mysterious liquid": ["a mysterious liquid", "potion", "Potion", "liquid", "Liquid", "mysterious liquid"]}

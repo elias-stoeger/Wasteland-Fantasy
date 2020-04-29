@@ -51,6 +51,7 @@ class Everything:
         self.pnd = "False"
         self.doneCombat = False
         self.foundItem = False
+        self.alive = True
 
 
 Everything = Everything()
@@ -105,7 +106,7 @@ def start():
                               "the sounds of birds and critters around you.\n"
                               "They are so loud your head hurts\n\"Am i hungover?\", you think..."
                               "\n\nSome water would do wonders.\n"
-                              "You look around and spot a pond at the edge\nof the glade...")
+                              "You look around and spot a pond at the edge\nof the glade...\n")
 
         Log.insert(INSERT, "Log:\n"
                            "You woke up\n")
@@ -118,6 +119,9 @@ def enter(event=None):
     Screen.config(state=NORMAL)
     Log.config(state=NORMAL)
     last_square = World.current_Square
+    coords = []
+    if Everything.alive is False:
+        root.destroy()
     if com == "pond" or Everything.pnd is True:
         if Everything.pnd is True and Player.name is None:
             Player.name = x
@@ -164,7 +168,6 @@ def enter(event=None):
             newSquare = f"{int(x) + 1},{int(y)}"
         else:
             newSquare = f"{int(x)},{int(y) - 1}"
-        coords = []
         for s in World.Squares:
             coords.append(s.coords)
         if newSquare in coords:
@@ -190,7 +193,6 @@ def enter(event=None):
                 y = World.current_Square.coords.split(",")[1]
                 newSquare = random.choice([f"{int(x)},{int(y) - 1}", f"{int(x)},{int(y) + 1}",
                                           f"{int(x) - 1},{int(y)}", f"{int(x) + 1},{int(y)}"])
-                coords = []
                 for s in World.Squares:
                     coords.append(s.coords)
                 if newSquare in coords:
@@ -205,10 +207,78 @@ def enter(event=None):
             else:
                 Screen.insert(INSERT, "\nYou try to run but your trip over your legs while turning...\n\n")
                 enemy_turn()
+    elif com == "take":
+        if World.current_Square.Floor is not None:
+            Screen.insert(INSERT, f"\nYou pick up {World.current_Square.Floor.Name} and\nstuff it in your backpack.\n")
+            Player.inventory.append(World.current_Square.Floor)
+            World.current_Square.Floor = None
+        else:
+            Screen.insert(INSERT, "\nYou pick a flower and stick it behind your ear...\n"
+                                  "There is nothing else to pick up here...\n")
+    elif com[0] == "equip":
+        equipped = []
+        for item in Player.equipped:
+            equipped.append(item)
+        if len(equipped) > 1:
+            Screen.insert(INSERT, "You can't equip more items, unequip some first...\n")
+        else:
+            for item in Player.inventory:
+                if com[1] == item.Name:
+                    Player.equipped.append(item)
+                    Player.inventory.remove(item)
+                    Screen.insert(INSERT, f"\nYou equipped {item.Name}\n\n")
+                    get_stats(item.boni)
+            if Player.equipped == equipped:
+                Screen.insert(INSERT, f"\nYou don't have {com[1]} in your inventory...\n")
+    elif com[0] == "drink":
+        found = False
+        for item in Player.inventory:
+            if item.Name == com[1]:
+                found = True
+                drink_potion()
+                Player.inventory.remove(item)
+        if found is False:
+            Screen.insert(INSERT, f"You don't have {com[1]}")
+    elif com[0] == "unequip":
+        unequipped = False
+        for item in Player.equipped:
+            if item.Name == com[1]:
+                loose_stats(item.boni)
+                Screen.insert(INSERT, f"You take off {com[1]}\n")
+                Player.equipped.remove(item)
+                Player.inventory.append(item)
+                unequipped = True
+        if unequipped is False:
+            Screen.insert(INSERT, f"You don't seem to be wearing {com[1]}\n")
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
     Log.config(state=DISABLED)
+
+
+def get_stats(boni):
+    Player.dmg += boni[0]
+    Player.defense += boni[1]
+    Player.evasion += boni[2]
+
+
+def loose_stats(boni):
+    Player.dmg -= boni[0]
+    Player.defense -= boni[1]
+    Player.evasion -= boni[2]
+
+
+def drink_potion():
+    rng = random.randint(0, 9)
+    if rng > 3:
+        Screen.insert(INSERT, "Your health has been restored!\n")
+        Player.current_hp = Player.max_hp
+    else:
+        if Player.current_hp >= 1:
+            Screen.insert(INSERT, f"Yuck, that wasn't good...\nYou loose {Player.current_hp / 2} health...\n")
+            Player.current_hp -= Player.current_hp / 2
+        else:
+            Screen.insert(INSERT, "Eww.. You puke a little but you will hang on for now...\n")
 
 
 def prep_square(last_square):
@@ -224,7 +294,7 @@ def prep_square(last_square):
     Screen.delete("0.1", END)
     Screen.insert(INSERT, f"{World.current_Square.description}")
     if World.current_Square.Floor is not None:
-        Screen.insert(INSERT, f"\n{World.current_Square.Floor[0]} is sitting on the floor...\n")
+        Screen.insert(INSERT, f"\n{World.current_Square.Floor.Name} is sitting on the floor...\n")
     if World.current_Square.NPCs is None and World.current_Square.state != "clear":
         World.current_Square.NPCs = Enemy(World.current_Square.tier - 1)
         if World.current_Square.NPCs.name in Enemies[World.current_Square.tier - 1]:
@@ -247,7 +317,7 @@ def prep_square(last_square):
 def enemy_turn():
     e_rng = random.randint(0, 9)
     damage = World.current_Square.NPCs.dmg
-    if e_rng < 3:
+    if e_rng < Player.evasion:
         Screen.insert(INSERT, f"The clumsy attack from {World.current_Square.NPCs.name}\n"
                               f"misses by a hairs breath...\n")
     elif e_rng == 9:
@@ -257,8 +327,6 @@ def enemy_turn():
             damage = damage * 2 - Player.defense
         Screen.insert(INSERT, f"A critical hit! You take {damage} damage.\n")
         Player.current_hp -= damage
-        if Player.current_hp <= 0:
-            Screen.insert(INSERT, "You succumb to your injuries...")
     else:
         if damage - Player.defense <= 0:
             damage = 0
@@ -266,6 +334,9 @@ def enemy_turn():
             damage = damage - Player.defense
         Player.current_hp -= damage
         Screen.insert(INSERT, f"You take {damage} damage...\n")
+    if Player.current_hp <= 0:
+        Screen.insert(INSERT, "You succumb to your injuries...")
+        Everything.alive = False
 
 
 def combat():
@@ -290,7 +361,8 @@ def combat():
     else:
         World.current_Square.NPCs.hp -= Player.dmg
         if World.current_Square.NPCs.hp <= 0:
-            Screen.insert(INSERT, f"You hit doing {Player.dmg} damage\nYou defeated {World.current_Square.NPCs.name}.\n")
+            Screen.insert(INSERT, f"You hit doing {Player.dmg} damage\n"
+                                  f"You defeated {World.current_Square.NPCs.name}.\n")
             Player.combat = False
             World.current_Square.state = "clear"
             Log.insert(INSERT, f"you have slain\n{World.current_Square.NPCs.name}\n\n")
@@ -325,7 +397,7 @@ def reward():
         item = get_item()
         Screen.insert(INSERT, f"\nYou see something drop from the corpse..\n"
                               f"Where did {World.current_Square.NPCs.name} get {item.Name}???\n")
-        World.current_Square.Floor.append(item)
+        World.current_Square.Floor = item
 
 
 def levelup():
@@ -392,11 +464,19 @@ def inventory():
     inv_pop = Toplevel()
     inv_pop.geometry("400x300")
     inv_pop.title("Your Backpack")
-    if DB is None:
-        Text_ = Label(inv_pop, anchor=W, justify="left", font=("Times", 12), text="Nothing in here yet...")
+    scroll = Scrollbar(inv_pop)
+    scroll.pack(side=RIGHT, fill=Y)
+    if not Player.inventory:
+        Text_ = Text(inv_pop, bg="#837373", fg="#d9d9d9", yscrollcommand=scroll.set, relief="flat")
+        Text_.insert(INSERT, "Nothing in here yet...")
     else:
-        Text_ = Label(inv_pop, anchor=W, justify="left", text="Implement once you have a DB")
-    Text_.grid(row=0, column=0)
+        Text_ = Text(inv_pop, bg="#837373", fg="#d9d9d9", yscrollcommand=scroll.set, relief="flat")
+        Text_.insert(INSERT, Player.get_inventory())
+    Text_.pack(expand=True)
+    if OS == "Windows":
+        Text_.config(font=("Times", 12))
+    scroll.config(command=Text_.yview)
+    Text_.config(state=DISABLED)
 
 
 def map_():

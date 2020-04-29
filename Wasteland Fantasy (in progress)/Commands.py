@@ -1,4 +1,5 @@
 import re
+from Items import synonyms
 
 
 def commands(command):
@@ -16,6 +17,10 @@ def commands(command):
     ursine = r"[u|U]rsine"
     attack = r"^[a|A]ttack|^[h|H]it|^[s|S]trike|^[s|S]ma[sh|ck]"
     flee = r"^[r|R]un\s?|^[f|F]lee\s?"
+    take = r"^[t|T]ake|^[p|P]ick\sup"
+    equip = r"^[e|E]quip\s|^[p|P]ut\son"
+    drink = r"^[d|D]rink\s|^[j|J]ugg"
+    unequip = r"^[u|U]nequip\s|^[t|T]ake\soff"
     check = re.search(x, command)
     check_pond = re.search(pond, command)
     check_newt = re.search(info_newtfolk, command)
@@ -30,6 +35,10 @@ def commands(command):
     check_ursine_ = re.search(ursine, command)
     check_attack = re.search(attack, command)
     check_flee = re.search(flee, command)
+    check_take = re.search(take, command)
+    check_equip = re.search(equip, command)
+    check_drink = re.search(drink, command)
+    check_unequip = re.search(unequip, command)
     if check:
         return move(check.group(0))
     elif check_pond:
@@ -58,6 +67,28 @@ def commands(command):
         return "attack"
     elif check_flee:
         return "flee"
+    elif check_take:
+        return "take"
+    elif check_equip:
+        x = item_synonyms(command[6:])
+        if x:
+            return "equip", x
+        else:
+            return "equip", command[6:]
+    elif check_drink:
+        x = item_synonyms(command[6:])
+        if x:
+            return "drink", x
+        else:
+            return "drink", command[6:]
+    elif check_unequip:
+        x = item_synonyms(command[8:])
+        if x:
+            return "unequip", x
+        else:
+            return "unequip", command[8:]
+    else:
+        return "nothing"
 
 
 def infos(race):
@@ -127,3 +158,9 @@ def interact(x):
 
 def suicide(x):
     return "hi"
+
+
+def item_synonyms(b):
+    for item in synonyms:
+        if b in synonyms[item]:
+            return item

@@ -17,13 +17,22 @@ class Player:
         self.combat = False
 
     def pond(self):
+        x = ""
+        for item in self.equipped:
+            x += f"You have {item.Name} equipped"
         return f"My Name is {self.name}\nI am {self.race} by birth\n" \
                f"I currently have {self.current_hp} of my {self.max_hp} HP\n" \
                f"I am on level {self.level} and have {self.exp} gathered experience\n" \
                f"I need {self.exp2lvl - self.exp} more experience to level up\n" \
                f"I do {self.dmg} damage with a normal hit\n" \
                f"I take {self.defense} less damage due to my defense\n" \
-               f"I have a {self.evasion*10}% chance to dodge attacks"
+               f"I have a {self.evasion*10}% chance to dodge attacks\n" + x
+
+    def get_inventory(self):
+        inv = ""
+        for item in self.inventory:
+            inv += f"{item.Name}\n~{item.description}\n"
+        return inv
 
     def adjust(self):
         if self.race == "Bathynomic":
