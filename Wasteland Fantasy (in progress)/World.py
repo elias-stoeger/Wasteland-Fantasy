@@ -99,6 +99,7 @@ class Square:
         self.tier = 0
         self.music = None
         self.NPCs = None
+        self.Floor = None
 
     def inhabs(self):
         return "todo"

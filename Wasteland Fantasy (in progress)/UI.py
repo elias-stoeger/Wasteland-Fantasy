@@ -50,6 +50,7 @@ class Everything:
     def __init__(self):
         self.pnd = "False"
         self.doneCombat = False
+        self.foundItem = False
 
 
 Everything = Everything()
@@ -222,6 +223,8 @@ def prep_square(last_square):
     World.current_Square.description = World.current_Square.get_description()
     Screen.delete("0.1", END)
     Screen.insert(INSERT, f"{World.current_Square.description}")
+    if World.current_Square.Floor is not None:
+        Screen.insert(INSERT, f"\n{World.current_Square.Floor[0]} is sitting on the floor...\n")
     if World.current_Square.NPCs is None and World.current_Square.state != "clear":
         World.current_Square.NPCs = Enemy(World.current_Square.tier - 1)
         if World.current_Square.NPCs.name in Enemies[World.current_Square.tier - 1]:
@@ -243,17 +246,26 @@ def prep_square(last_square):
 
 def enemy_turn():
     e_rng = random.randint(0, 9)
+    damage = World.current_Square.NPCs.dmg
     if e_rng < 3:
         Screen.insert(INSERT, f"The clumsy attack from {World.current_Square.NPCs.name}\n"
                               f"misses by a hairs breath...\n")
     elif e_rng == 9:
-        Screen.insert(INSERT, f"A critical hit! You take {World.current_Square.NPCs.dmg * 2} damage.\n")
-        Player.current_hp -= World.current_Square.NPCs.dmg * 2
+        if damage * 2 - Player.defense <= 0:
+            damage = 0
+        else:
+            damage = damage * 2 - Player.defense
+        Screen.insert(INSERT, f"A critical hit! You take {damage} damage.\n")
+        Player.current_hp -= damage
         if Player.current_hp <= 0:
             Screen.insert(INSERT, "You succumb to your injuries...")
     else:
-        Player.current_hp -= World.current_Square.NPCs.dmg
-        Screen.insert(INSERT, f"You take {World.current_Square.NPCs.dmg} damage...\n")
+        if damage - Player.defense <= 0:
+            damage = 0
+        else:
+            damage = damage - Player.defense
+        Player.current_hp -= damage
+        Screen.insert(INSERT, f"You take {damage} damage...\n")
 
 
 def combat():
@@ -265,7 +277,7 @@ def combat():
         Screen.insert(INSERT, "A devastating hit!\n")
         World.current_Square.NPCs.hp -= Player.dmg * 2
         if World.current_Square.NPCs.hp <= 0:
-            Screen.insert(INSERT, f"You defeated {World.current_Square.NPCs.name}.")
+            Screen.insert(INSERT, f"\nYou defeated {World.current_Square.NPCs.name}.\n")
             Player.combat = False
             World.current_Square.state = "clear"
             Log.insert(INSERT, f"you have slain\n{World.current_Square.NPCs.name}\n\n")
@@ -303,6 +315,17 @@ def reward():
         Player.max_hp += 1
         Player.exp2lvl = Player.level ** 2 + 2
         Screen.insert(INSERT, f"You reached the next level! Level {Player.level}\n")
+    rng = random.randint(0, 9)
+    if rng < 6:
+        pass
+    else:
+        if Everything.foundItem is False:
+            intro_items()
+            Everything.foundItem = True
+        item = get_item()
+        Screen.insert(INSERT, f"\nYou see something drop from the corpse..\n"
+                              f"Where did {World.current_Square.NPCs.name} get {item.Name}???\n")
+        World.current_Square.Floor.append(item)
 
 
 def levelup():
@@ -332,6 +355,32 @@ def intro_combat():
                        "and will place you on a random square around\n"
                        "the enemy, if it fails it's the enemies turn.\n"
                        "All clear?\n\nWaidmanns Heil, adventurer!")
+    Text_.grid(row=0, column=0)
+    if OS == "Windows":
+        Text_.config(font=("Times", 12))
+    Text_.grab_set()
+    help_pop.transient()
+
+
+def intro_items():
+    help_pop = Toplevel()
+    if OS == "Windows":
+        help_pop.geometry("350x300")
+    else:
+        help_pop.geometry("350x258")
+    help_pop.title("Items")
+    Text_ = Label(help_pop, anchor=W, justify="left",
+                  text="Hey there, champ!\n"
+                       "Looks like you just found your first item.\n"
+                       "I may know a thing or two about those..\n"
+                       "Want me to tell you?\n"
+                       "\nNo? Well, it's not your decision anyways:\n"
+                       "There are two kinds of items, gear and potions\n"
+                       "You can equip gear to get some boni to your stats\n"
+                       "damage, defense and evasion but only two at a time\n"
+                       "\nThen there are potions, they are tricky:\n"
+                       "They can either be good or bad but you can only\n"
+                       "know if you drink them.\n\nProst, adventurer!")
     Text_.grid(row=0, column=0)
     if OS == "Windows":
         Text_.config(font=("Times", 12))
