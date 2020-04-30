@@ -127,7 +127,6 @@ class Square:
 
     def rand_type(self):
         tier = self.tier
-        print(tier)
         tier1 = ["woods", "rocky", "grassland"]
         tier2 = ["snowy", "shore", "river"]
         if tier == 1:

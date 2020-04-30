@@ -59,6 +59,9 @@ class Everything:
         self.doneCombat = False
         self.foundItem = False
         self.alive = True
+        self.trading = False
+        self.gambling = False
+        self.Trade = None
 
 
 Everything = Everything()
@@ -95,7 +98,8 @@ def help_():
                        "Something like \"hit the goblin\" or \"take the ring\" + Enter\n\n"
                        "You move by giving your direction in cardinal directions:\n"
                        "\"go north\", \"go south\" and stuff like that.\n"
-                       "I am sure you will figure the rest out yourself...\n\n"
+                       "I am sure you will figure the rest out yourself...\n"
+                       "If not you can write \"help\" in the command line.\n"
                        "I hope you enjoy :)")
     Text_.grid(row=0, column=0)
     if OS == "Windows":
@@ -129,7 +133,53 @@ def enter(event=None):
     coords = []
     if Everything.alive is False:
         root.destroy()
-    if com == "pond" or Everything.pnd is True:
+    elif Everything.trading:
+        if x in ["yes", "Yes"]:
+            Screen.insert(INSERT, "\n\"Hehehe...\"\n")
+            Log.insert(INSERT, f"You traded\n"
+                               f"{Everything.Trade[1].Name} for\n{Everything.Trade[0].Name}\n\n")
+            found = 0
+            while found != -1 and found <= len(Player.inventory) - 1:
+                if Player.inventory[found] == Everything.Trade[1]:
+                    Player.inventory.remove()
+                    Player.inventory.append(Everything.Trade[0])
+                    Player.current_hp -= Player.current_hp // 2
+                    Everything.trading = False
+                    found = -1
+                else:
+                    found += 1
+            if Everything.trading:
+                found = 0
+                while found != -1 and found <= len(Player.equipped) - 1:
+                    if Player.equipped[found] == Everything.Trade[1]:
+                        Player.equipped.remove(Player.equipped[found])
+                        Player.inventory.append(Everything.Trade[0])
+                        Player.current_hp -= Player.current_hp // 2
+                        Everything.trading = False
+                        found = -1
+                    else:
+                        found += 1
+        elif x in ["no", "No"]:
+            Everything.trading = False
+            Screen.insert(INSERT, "\n\"Get lost then....\"")
+        else:
+            Screen.insert(INSERT, "\nDefinitively honest trader:\n\"What was that?\"\n")
+    elif x == "help":
+        Screen.delete("1.0", END)
+        Screen.insert(INSERT, "Here's a few commands and what they do:\n"
+                              "\"pond\" will start the character creation\n"
+                              "\"attack\" makes you attack an enemy\n"
+                              "\"north\", \"east\", \"south\" and \"west\" make you\n"
+                              "go that direction\n\n"
+                              "\"take\" for picking up stuff\n"
+                              "\"equip ITEM\" to equip items\n"
+                              "\"unequip ITEM\" to, well, unequip items\n"
+                              "\"drink ITEM\" to drink items that are potions\n"
+                              "\"flee\" to flee from combat\n"
+                              "\nThose are not the only way you can call them\n"
+                              "but I don't want to spoil all the fun\n"
+                              "If you still struggle, look inwards :^)")
+    elif com == "pond" or Everything.pnd is True:
         if Everything.pnd is True and Player.name is None:
             Player.name = x
             Screen.delete('1.0', END)
@@ -218,6 +268,7 @@ def enter(event=None):
         if World.current_Square.Floor is not None:
             Screen.insert(INSERT, f"\nYou pick up {World.current_Square.Floor.Name} and\nstuff it in your backpack.\n")
             Player.inventory.append(World.current_Square.Floor)
+            Log.insert(INSERT, f"You found\n{World.current_Square.Floor.Name}\n\n")
             World.current_Square.Floor = None
         else:
             Screen.insert(INSERT, "\nYou pick a flower and stick it behind your ear...\n"
@@ -282,8 +333,8 @@ def drink_potion():
         Player.current_hp = Player.max_hp
     else:
         if Player.current_hp >= 1:
-            Screen.insert(INSERT, f"Yuck, that wasn't good...\nYou loose {Player.current_hp / 2} health...\n")
-            Player.current_hp -= Player.current_hp / 2
+            Screen.insert(INSERT, f"Yuck, that wasn't good...\nYou loose {Player.current_hp // 2} health...\n")
+            Player.current_hp -= Player.current_hp // 2
         else:
             Screen.insert(INSERT, "Eww.. You puke a little but you will hang on for now...\n")
 
@@ -312,7 +363,16 @@ def prep_square(last_square):
                 Everything.doneCombat = True
         elif World.current_Square.NPCs.name in NPC:
             World.current_Square.state = "clear"
-            Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
+            if World.current_Square.NPCs.name is None:
+                pass
+            else:
+                if appear_npc(World.current_Square.NPCs.name) not in ["gamble", "trade"]:
+                    Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
+                elif appear_npc(World.current_Square.NPCs.name) == "gamble":
+                    gamble()
+                elif appear_npc(World.current_Square.NPCs.name) == "trade":
+                    x = trade()
+                    Everything.Trade = x
         else:
             World.current_Square.state = "clear"
     elif World.current_Square.NPCs is not None and World.current_Square.state != "clear":
@@ -322,7 +382,12 @@ def prep_square(last_square):
         if World.current_Square.NPCs.name is None:
             pass
         else:
-            Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
+            if appear_npc(World.current_Square.NPCs.name) not in ["gamble", "trade"]:
+                Screen.insert(INSERT, appear_npc(World.current_Square.NPCs.name))
+            elif appear_npc(World.current_Square.NPCs.name) == "gamble":
+                Screen.insert(INSERT, "You see a gambler but he seems busy...\n")
+            elif appear_npc(World.current_Square.NPCs.name) == "trade":
+                Screen.insert(INSERT, "You see a trader but he seems busy...\n")
     if last_square.music is not World.current_Square.music:
         mixer_music.fadeout(500)
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")
@@ -421,6 +486,31 @@ def levelup():
     Player.max_hp += 1
     Screen.insert(INSERT, f"You reached the next Level: Level {Player.level}!\n"
                           f"You now have {Player.max_hp} maximum HP\nand {Player.current_hp} current HP.\n")
+
+
+def gamble():
+    Everything.gambling = True
+    print("getting there, chill...")
+
+
+def trade():
+    Player_items = []
+    for item in Player.inventory + Player.equipped:
+        Player_items.append(item)
+    if Player_items:
+        offer = get_item(World.current_Square.tier)
+        price = random.choice(Player_items)
+        Screen.insert(INSERT, f"\nTotally not shady trader:\n"
+                              f"Hey handsome, can I interest you in...\n"
+                              f"a little deal?...\n"
+                              f"I am willing to give you {offer.Name} but you have to give\n"
+                              f"me {price.Name}.. and also...\n{Player.current_hp // 2} health points.\n"
+                              f"What do you say?\"\n")
+        Everything.trading = True
+        return offer, price
+    else:
+        Screen.insert(INSERT, "\nVery honest and well-meaning trader:\n"
+                              "\"You have nothing I want, kid...\"\n")
 
 
 def intro_combat():
@@ -554,11 +644,11 @@ Character_b = Button(root, text="Character", command=character, font=("Times", 1
 Character_b.grid(row=3, column=3, sticky=SW, padx=100)
 Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=40)
 if OS == "Windows":
-    Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=50)
-    Log = Text(root, bg="#d9d9d9", height=15, width=20, relief="groove", font=("Times", 12))
+    Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), wrap=WORD, height=15, width=50)
+    Log = Text(root, bg="#d9d9d9", height=15, width=20, relief="groove", font=("Times", 12), wrap=WORD)
 else:
-    Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=50)
-    Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12))
+    Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), wrap=WORD, height=15, width=50)
+    Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12), wrap=WORD)
 Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W+S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
 Exit = Button(root, text="Close", command=root.destroy, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
