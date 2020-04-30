@@ -19,7 +19,7 @@ class Player:
     def pond(self):
         x = ""
         for item in self.equipped:
-            x += f"You have {item.Name} equipped"
+            x += f"You have {item.Name} equipped\n"
         return f"My Name is {self.name}\nI am {self.race} by birth\n" \
                f"I currently have {self.current_hp} of my {self.max_hp} HP\n" \
                f"I am on level {self.level} and have {self.exp} gathered experience\n" \

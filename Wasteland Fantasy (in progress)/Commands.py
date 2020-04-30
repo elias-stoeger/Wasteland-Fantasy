@@ -17,10 +17,10 @@ def commands(command):
     ursine = r"[u|U]rsine"
     attack = r"^[a|A]ttack|^[h|H]it|^[s|S]trike|^[s|S]ma[sh|ck]"
     flee = r"^[r|R]un\s?|^[f|F]lee\s?"
-    take = r"^[t|T]ake|^[p|P]ick\sup"
+    take = r"^[t|T]ake|^[p|P]ick\sup|^[g|G]et"
     equip = r"^[e|E]quip\s|^[p|P]ut\son"
-    drink = r"^[d|D]rink\s|^[j|J]ugg"
-    unequip = r"^[u|U]nequip\s|^[t|T]ake\soff"
+    drink = r"^[d|D]rink\s|^[j|J]ugg|^[s|S]i[pp|p]|^[u|U]se"
+    unequip = r"^[u|U]nequip\s|^[t|T]ake\soff|^[l|L]oose"
     check = re.search(x, command)
     check_pond = re.search(pond, command)
     check_newt = re.search(info_newtfolk, command)

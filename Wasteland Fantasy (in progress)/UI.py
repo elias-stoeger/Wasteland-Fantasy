@@ -9,7 +9,14 @@ from pygame import mixer, mixer_music
 
 
 # All music is royalty free and from https://www.bensound.com/royalty-free-music
-# or the youtube channel https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
+# or the youtube channels https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
+# Ocean by Hazy
+# https://soundcloud.com/hazy_music
+# Music provided by https://www.plugnplaymusic.net
+# https://www.youtube.com/channel/UCcavSftXHgxLBWwLDm_bNvA
+
+# The main background is from https://www.deviantart.com/marylise
+# also free for use
 
 # Play it on Linux for the prettiest experience
 
@@ -282,9 +289,9 @@ def drink_potion():
 
 
 def prep_square(last_square):
-    World.current_Square.tier = Player.level // 5 + 1
+    World.current_Square.tier = Player.level // 3 + 1
     rng = random.randint(0, 9)
-    if World.current_Square.tier == 1 and World.current_Square.type is None:
+    if World.current_Square.type is None:
         if rng > 1 and last_square.type != "start":
             World.current_Square.type = last_square.type
             World.current_Square.music = last_square.music
@@ -393,7 +400,7 @@ def reward():
         Player.level += 1
         Player.current_hp += 1
         Player.max_hp += 1
-        Player.exp2lvl = Player.level ** 2 + 2
+        Player.exp2lvl = Player.level * 2 + 2
         Screen.insert(INSERT, f"You reached the next level! Level {Player.level}\n")
     rng = random.randint(0, 9)
     if rng < 6:
@@ -402,7 +409,7 @@ def reward():
         if Everything.foundItem is False:
             intro_items()
             Everything.foundItem = True
-        item = get_item()
+        item = get_item(World.current_Square.tier)
         Screen.insert(INSERT, f"\nYou see something drop from the corpse..\n"
                               f"Where did {World.current_Square.NPCs.name} get {item.Name}???\n")
         World.current_Square.Floor = item
