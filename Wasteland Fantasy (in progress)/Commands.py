@@ -19,7 +19,8 @@ def commands(command):
     flee = r"^[r|R]un\s?|^[f|F]lee\s?"
     take = r"^[t|T]ake|^[p|P]ick\sup|^[g|G]et"
     equip = r"^[e|E]quip\s|^[p|P]ut\son"
-    drink = r"^[d|D]rink\s|^[j|J]ugg|^[s|S]i[pp|p]|^[u|U]se"
+    drink = r"^[d|D]rink\s"
+    use = r"^[u|U]se\s"
     unequip = r"^[u|U]nequip\s|^[t|T]ake\soff|^[l|L]oose"
     roll = r"^[r|R]oll"
     check = re.search(x, command)
@@ -41,6 +42,7 @@ def commands(command):
     check_drink = re.search(drink, command)
     check_unequip = re.search(unequip, command)
     check_roll = re.search(roll, command)
+    check_use = re.search(use, command)
     if check:
         return move(check.group(0))
     elif check_pond:
@@ -83,6 +85,12 @@ def commands(command):
             return "drink", x
         else:
             return "drink", command[6:]
+    elif check_use:
+        x = item_synonyms(command[4:])
+        if x:
+            return "use", x
+        else:
+            return "use", command[4:]
     elif check_unequip:
         x = item_synonyms(command[8:])
         if x:

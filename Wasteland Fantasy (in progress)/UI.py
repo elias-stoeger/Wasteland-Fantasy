@@ -139,7 +139,6 @@ def enter(event=None):
         root.destroy()
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
-            print("here")
             Everything.roll = random.randint(1, 6)
             Screen.insert(INSERT, "\"Very well, here's how we do it:\n"
                                   "I will roll a die and show the number..\n"
@@ -161,7 +160,7 @@ def enter(event=None):
                 Screen.insert(INSERT, f"\n\"Hmpf, very well...\"\n"
                                       f"The gambler hands you {item.Name}\n\n")
                 Player.inventory.append(item)
-                Log.insert(INSERT, f"You won\n{item.name}\n\n")
+                Log.insert(INSERT, f"You won\n{item.Name}\n\n")
             elif roll < Everything.roll:
                 stuff = []
                 for item in Player.inventory + Player. equipped:
@@ -320,6 +319,7 @@ def enter(event=None):
             else:
                 Screen.insert(INSERT, "\nYou try to run but your trip over your legs while turning...\n\n")
                 enemy_turn()
+            Everything.character_uptodate = False
     elif com == "take":
         if World.current_Square.Floor is not None:
             Screen.insert(INSERT, f"\nYou pick up {World.current_Square.Floor.Name} and\nstuff it in your backpack.\n")
@@ -336,7 +336,7 @@ def enter(event=None):
             equipped.append(item)
         if len(equipped) > 1:
             Screen.insert(INSERT, "You can't equip more items, unequip some first...\n")
-        else:
+        elif com[1] not in synonyms["a mysterious liquid"]:
             for item in Player.inventory:
                 if com[1] == item.Name:
                     Player.equipped.append(item)
@@ -345,19 +345,24 @@ def enter(event=None):
                     get_stats(item.boni)
             if Player.equipped == equipped:
                 Screen.insert(INSERT, f"\nYou don't have {com[1]} in your inventory...\n")
+        else:
+            Screen.insert(INSERT, "\nMan, how do you image that working?\n\n")
         Everything.character_uptodate = False
         Everything.inventory_uptodate = False
-    elif com[0] == "drink":
-        found = False
-        for item in Player.inventory:
-            if item.Name == com[1] and found is False:
-                found = True
-                drink_potion()
-                Player.inventory.remove(item)
-        if found is False:
-            Screen.insert(INSERT, f"You don't have {com[1]} in\nyour backpack.\n")
-        Everything.character_uptodate = False
-        Everything.inventory_uptodate = False
+    elif com[0] == "drink" or com[0] == "use":
+        if com[1] in synonyms["a mysterious liquid"]:
+            found = False
+            for item in Player.inventory:
+                if item.Name == com[1] and found is False:
+                    found = True
+                    drink_potion()
+                    Player.inventory.remove(item)
+            if found is False:
+                Screen.insert(INSERT, f"You don't have {com[1]} in\nyour backpack.\n")
+            Everything.character_uptodate = False
+            Everything.inventory_uptodate = False
+        else:
+            Screen.insert(INSERT, f"\nYou can't {com[0]} {com[1]}...\n")
     elif com[0] == "unequip":
         unequipped = False
         for item in Player.equipped:
@@ -657,6 +662,7 @@ def inventory():
             Text_.insert(INSERT, Player.get_inventory())
             Text_.config(state=DISABLED)
             Everything.inventory_uptodate = True
+            Text_.see("end")
         inv_pop.after(500, update)
     inv_pop.after(1000, update)
 
@@ -684,6 +690,7 @@ def map_():
     yscroll.config(command=Text_.yview)
     xscroll.config(command=Text_.xview)
     Text_.config(state=DISABLED)
+    Everything.map_uptodate = True
 
     def update():
         if Everything.map_uptodate is False:
