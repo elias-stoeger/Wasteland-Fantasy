@@ -63,6 +63,9 @@ class Everything:
         self.gambling = False
         self.Trade = None
         self.roll = None
+        self.map_uptodate = True
+        self.inventory_uptodate = True
+        self.character_uptodate = True
 
 
 Everything = Everything()
@@ -155,8 +158,8 @@ def enter(event=None):
             Screen.insert(INSERT, f"\nYou roll a {roll}\n\n")
             if roll > Everything.roll:
                 item = get_item(World.current_Square.tier)
-                Screen.insert(f"\n\"Hmpf, very well...\"\n"
-                              f"The gambler hands you {item.Name}\n\n")
+                Screen.insert(INSERT, f"\n\"Hmpf, very well...\"\n"
+                                      f"The gambler hands you {item.Name}\n\n")
                 Player.inventory.append(item)
                 Log.insert(INSERT, f"You won\n{item.name}\n\n")
             elif roll < Everything.roll:
@@ -179,6 +182,8 @@ def enter(event=None):
                     Screen.insert(INSERT, "\nYou die a fools death...")
             Everything.gambling = False
             Everything.roll = None
+            Everything.inventory_uptodate = False
+            Everything.character_uptodate = False
         else:
             Screen.insert(INSERT, "Come on, kid.. roll the die...\n")
     elif Everything.trading:
@@ -207,6 +212,8 @@ def enter(event=None):
                         found = -1
                     else:
                         found += 1
+                Everything.inventory_uptodate = False
+                Everything.character_uptodate = False
         elif x in ["no", "No"]:
             Everything.trading = False
             Screen.insert(INSERT, "\n\"Get lost then....\"")
@@ -248,6 +255,7 @@ def enter(event=None):
                                   f"Use the cardinal directions (North, East, South and West)\nto move around")
             Log.insert(INSERT, "\nYou remembered who \nyou are\n\n")
             Everything.pnd = False
+            Everything.character_uptodate = False
         elif World.current_Square.type == "start" and World.current_Square.state is None and Everything.pnd == "False":
             Everything.pnd = True
             Screen.delete('1.0', END)
@@ -318,6 +326,7 @@ def enter(event=None):
             Player.inventory.append(World.current_Square.Floor)
             Log.insert(INSERT, f"You found\n{World.current_Square.Floor.Name}\n\n")
             World.current_Square.Floor = None
+            Everything.inventory_uptodate = False
         else:
             Screen.insert(INSERT, "\nYou pick a flower and stick it behind your ear...\n"
                                   "There is nothing else to pick up here...\n")
@@ -336,6 +345,8 @@ def enter(event=None):
                     get_stats(item.boni)
             if Player.equipped == equipped:
                 Screen.insert(INSERT, f"\nYou don't have {com[1]} in your inventory...\n")
+        Everything.character_uptodate = False
+        Everything.inventory_uptodate = False
     elif com[0] == "drink":
         found = False
         for item in Player.inventory:
@@ -345,6 +356,8 @@ def enter(event=None):
                 Player.inventory.remove(item)
         if found is False:
             Screen.insert(INSERT, f"You don't have {com[1]} in\nyour backpack.\n")
+        Everything.character_uptodate = False
+        Everything.inventory_uptodate = False
     elif com[0] == "unequip":
         unequipped = False
         for item in Player.equipped:
@@ -356,6 +369,8 @@ def enter(event=None):
                 unequipped = True
         if unequipped is False:
             Screen.insert(INSERT, f"You don't seem to be wearing {com[1]}\n")
+        Everything.character_uptodate = False
+        Everything.inventory_uptodate = False
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
@@ -440,6 +455,7 @@ def prep_square(last_square):
         mixer_music.fadeout(500)
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")
         mixer_music.play(-1)
+    Everything.map_uptodate = False
 
 
 def enemy_turn():
@@ -500,6 +516,7 @@ def combat():
             Screen.insert(INSERT, f"You hit doing {Player.dmg} damage\n"
                                   f"The foe still has {World.current_Square.NPCs.hp} HP left\n")
             enemy_turn()
+    Everything.character_uptodate = False
 
 
 def reward():
@@ -526,14 +543,7 @@ def reward():
         Screen.insert(INSERT, f"\nYou see something drop from the corpse..\n"
                               f"Where did {World.current_Square.NPCs.name} get {item.Name}???\n")
         World.current_Square.Floor = item
-
-
-def levelup():
-    Player.level += 1
-    Player.current_hp += 1
-    Player.max_hp += 1
-    Screen.insert(INSERT, f"You reached the next Level: Level {Player.level}!\n"
-                          f"You now have {Player.max_hp} maximum HP\nand {Player.current_hp} current HP.\n")
+    Everything.character_uptodate = False
 
 
 def gamble():
@@ -640,6 +650,16 @@ def inventory():
     scroll.config(command=Text_.yview)
     Text_.config(state=DISABLED)
 
+    def update():
+        if Everything.inventory_uptodate is False:
+            Text_.config(state=NORMAL)
+            Text_.delete("1.0", END)
+            Text_.insert(INSERT, Player.get_inventory())
+            Text_.config(state=DISABLED)
+            Everything.inventory_uptodate = True
+        inv_pop.after(500, update)
+    inv_pop.after(1000, update)
+
 
 def map_():
     Map_pop = Toplevel()
@@ -664,13 +684,18 @@ def map_():
     yscroll.config(command=Text_.yview)
     xscroll.config(command=Text_.xview)
     Text_.config(state=DISABLED)
-    # To force you to close the map if you want to play
-    # again because i don't want to rewrite it to use
-    # threading:
-    Map_pop.focus_force()
-    Map_pop.focus_set()
-    Map_pop.grab_set()
-    Map_pop.attributes("-topmost", True)
+
+    def update():
+        if Everything.map_uptodate is False:
+            Text_.config(state=NORMAL)
+            x = World.make_map()
+            Text_.delete("1.0", END)
+            Text_.insert("1.0", x)
+            Text_.tag_add("center", "1.0", "end")
+            Text_.config(state=DISABLED)
+            Everything.map_uptodate = True
+        Map_pop.after(500, update)
+    Map_pop.after(1000, update)
 
 
 def character():
@@ -686,6 +711,13 @@ def character():
     Text_.grid(row=0, column=0)
     if OS == "Windows":
         Text_.config(font=("Times", 12))
+
+    def update():
+        if Everything.character_uptodate is False:
+            Text_.config(text=Player.pond())
+            Everything.character_uptodate = True
+        char_pop.after(500, update)
+    char_pop.after(1000, update)
 
 
 Input = Entry(root, text="Write a command...")
