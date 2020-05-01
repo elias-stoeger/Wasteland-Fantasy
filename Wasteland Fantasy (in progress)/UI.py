@@ -62,6 +62,7 @@ class Everything:
         self.trading = False
         self.gambling = False
         self.Trade = None
+        self.roll = None
 
 
 Everything = Everything()
@@ -133,6 +134,53 @@ def enter(event=None):
     coords = []
     if Everything.alive is False:
         root.destroy()
+    elif Everything.gambling:
+        if x in ["yes", "Yes"] and Everything.roll is None:
+            print("here")
+            Everything.roll = random.randint(1, 6)
+            Screen.insert(INSERT, "\"Very well, here's how we do it:\n"
+                                  "I will roll a die and show the number..\n"
+                                  "Then it is your turn, if you roll higher\n"
+                                  "than me, I will give you an Item...\n"
+                                  "If you roll lower, I will take one of\n"
+                                  "your precious items...\n And if we roll the same I will take\n"
+                                  "half of your current HP...\"\n\n"
+                                  "The gambler takes out a worn out wooden die and...\n\n"
+                                  f"He rolls a {Everything.roll}\n")
+        elif x in ["no", "No"] and Everything.roll is None:
+            Screen.insert(INSERT, f"\"Pff.. I expected nothing different from\na {Player.race}...\n")
+            Everything.gambling = False
+        elif com == "roll":
+            roll = random.randint(1, 6)
+            Screen.insert(INSERT, f"\nYou roll a {roll}\n\n")
+            if roll > Everything.roll:
+                item = get_item(World.current_Square.tier)
+                Screen.insert(f"\n\"Hmpf, very well...\"\n"
+                              f"The gambler hands you {item.Name}\n\n")
+                Player.inventory.append(item)
+                Log.insert(INSERT, f"You won\n{item.name}\n\n")
+            elif roll < Everything.roll:
+                stuff = []
+                for item in Player.inventory + Player. equipped:
+                    stuff.append(item)
+                loss = random.choice(stuff)
+                if loss in Player.inventory:
+                    Player.inventory.remove(loss)
+                else:
+                    Player.equipped.remove(loss)
+                Screen.insert(INSERT, f"Harharhar.. your {loss.Name}\nwill look good in my collection..\n")
+                Log.insert(INSERT, f"You lost {loss.Name}\nto a gambler...\n\n")
+            else:
+                Screen.insert(INSERT, f"The figure takes out a small knife and with\na swift cut...\n"
+                                      f"You loose {(Player.current_hp + 1) // 2} HP..\n")
+                Player.current_hp -= (Player.current_hp + 1) // 2
+                if Player.current_hp <= 0:
+                    Everything.alive = False
+                    Screen.insert(INSERT, "\nYou die a fools death...")
+            Everything.gambling = False
+            Everything.roll = None
+        else:
+            Screen.insert(INSERT, "Come on, kid.. roll the die...\n")
     elif Everything.trading:
         if x in ["yes", "Yes"]:
             Screen.insert(INSERT, "\n\"Hehehe...\"\n")
@@ -141,7 +189,7 @@ def enter(event=None):
             found = 0
             while found != -1 and found <= len(Player.inventory) - 1:
                 if Player.inventory[found] == Everything.Trade[1]:
-                    Player.inventory.remove()
+                    Player.inventory.remove(Player.inventory[found])
                     Player.inventory.append(Everything.Trade[0])
                     Player.current_hp -= Player.current_hp // 2
                     Everything.trading = False
@@ -291,12 +339,12 @@ def enter(event=None):
     elif com[0] == "drink":
         found = False
         for item in Player.inventory:
-            if item.Name == com[1]:
+            if item.Name == com[1] and found is False:
                 found = True
                 drink_potion()
                 Player.inventory.remove(item)
         if found is False:
-            Screen.insert(INSERT, f"You don't have {com[1]}")
+            Screen.insert(INSERT, f"You don't have {com[1]} in\nyour backpack.\n")
     elif com[0] == "unequip":
         unequipped = False
         for item in Player.equipped:
@@ -489,8 +537,17 @@ def levelup():
 
 
 def gamble():
-    Everything.gambling = True
-    print("getting there, chill...")
+    stuff = []
+    for item in Player.inventory + Player.equipped:
+        stuff.append(item)
+    if stuff:
+        Everything.gambling = True
+        Screen.insert(INSERT, f"\nShoddy figure:\n"
+                              f"Hey there, hero! Can i interest you in...\n"
+                              f"a little game?\n\n")
+    else:
+        Screen.insert(INSERT, "\nShoddy figure:\n"
+                              "Talk to me when you have some items...\n")
 
 
 def trade():
@@ -501,7 +558,7 @@ def trade():
         offer = get_item(World.current_Square.tier)
         price = random.choice(Player_items)
         Screen.insert(INSERT, f"\nTotally not shady trader:\n"
-                              f"Hey handsome, can I interest you in...\n"
+                              f"\"Hey handsome, can I interest you in...\n"
                               f"a little deal?...\n"
                               f"I am willing to give you {offer.Name} but you have to give\n"
                               f"me {price.Name}.. and also...\n{Player.current_hp // 2} health points.\n"

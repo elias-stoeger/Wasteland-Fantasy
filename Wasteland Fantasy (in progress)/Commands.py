@@ -21,6 +21,7 @@ def commands(command):
     equip = r"^[e|E]quip\s|^[p|P]ut\son"
     drink = r"^[d|D]rink\s|^[j|J]ugg|^[s|S]i[pp|p]|^[u|U]se"
     unequip = r"^[u|U]nequip\s|^[t|T]ake\soff|^[l|L]oose"
+    roll = r"^[r|R]oll"
     check = re.search(x, command)
     check_pond = re.search(pond, command)
     check_newt = re.search(info_newtfolk, command)
@@ -39,6 +40,7 @@ def commands(command):
     check_equip = re.search(equip, command)
     check_drink = re.search(drink, command)
     check_unequip = re.search(unequip, command)
+    check_roll = re.search(roll, command)
     if check:
         return move(check.group(0))
     elif check_pond:
@@ -87,6 +89,8 @@ def commands(command):
             return "unequip", x
         else:
             return "unequip", command[8:]
+    elif check_roll:
+        return "roll"
     else:
         return "nothing"
 

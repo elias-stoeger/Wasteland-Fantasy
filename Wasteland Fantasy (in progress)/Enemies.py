@@ -45,6 +45,6 @@ def appear_npc(npc):
 
 
 guide_facts = ["\nGuide:\n\"Hey there, sports!\nDid you know that the common Snider once was\ntwo separate animals that merged into\none when they came into contact with a radstone?\nNow isn't that interesting?\"\n",
-               "\nGuide:\n\"Oh hey there, champ!\nDid you know that Sproutlings grow up to\nbecome Ents?\nAnd Ents then grow up to be Treants?\nI bet you didn't.. haha...\n\"",
-               "\nGuide:\n\"What's up, fella?\nDid you know that, since the bombs fell\nants have stopped being settlers and started\nroaming around in in swarms?\nIt's true and the swarms can get exceedingly big!\nLuckily i have never met more then a basket full\nof them...\n",
+               "\nGuide:\n\"Oh hey there, champ!\nDid you know that Sproutlings grow up to\nbecome Ents?\nAnd Ents then grow up to be Treants?\nI bet you didn't.. haha...\"\n",
+               "\nGuide:\n\"What's up, fella?\nDid you know that, since the bombs fell\nants have stopped being settlers and started\nroaming around in swarms?\nIt's true and the swarms can get exceedingly big!\nLuckily i have never met more then a basket full\nof them...\n",
                "\nGuide:\n\"What's up you goofball?\nDid you know that fairies are compulsive\ncollectors? So much so that we started\nnaming them after what they collect! I sure\nwon't forget the time i ran into that\nBone Fairy...\n"]
