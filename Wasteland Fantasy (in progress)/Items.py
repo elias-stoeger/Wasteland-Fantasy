@@ -1,4 +1,4 @@
-import random
+from random import choice
 
 
 class Item:
@@ -60,9 +60,9 @@ descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(
 
 def get_item(tier):
     if tier == 1:
-        item = random.choice(items1)
+        item = choice(items1)
     else:
-        item = random.choice(items2)
+        item = choice(items2)
     return Item(item[0], item[1], tier)
 
 

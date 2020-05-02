@@ -1,8 +1,8 @@
-import random
-import platform
+from random import choice
+from platform import system
 
 
-OS = platform.system()
+OS = system()
 
 
 class World:
@@ -64,9 +64,9 @@ class World:
                     # make a nice little forrest that happens to be
                     # the exact same size as all squares (͡ ° ͜ʖ ͡ °)
                     if OS == "Windows":
-                        Map.append(random.choice(["↟ ", "↟ ", " ↟", "↟↟", " ."]))
+                        Map.append(choice(["↟ ", "↟ ", " ↟", "↟↟", " ."]))
                     else:
-                        Map.append(random.choice([" ↟ ", "↟  ", "  ↟"]))
+                        Map.append(choice([" ↟ ", "↟  ", "  ↟"]))
             if max(xcoords) > 13:
                 Map.append(" ")
             elif min(xcoords) < -13:
@@ -111,17 +111,17 @@ class Square:
         if self.type == "start":
             return "You woke up here\nYou see nothing interesting, just the pond"
         elif self.type == "woods":
-            return random.choice(woods)
+            return choice(woods)
         elif self.type == "rocky":
-            return random.choice(rocky)
+            return choice(rocky)
         elif self.type == "grassland":
-            return random.choice(grassland)
+            return choice(grassland)
         elif self.type == "snowy":
-            return random.choice(snowy)
+            return choice(snowy)
         elif self.type == "shore":
-            return random.choice(shore)
+            return choice(shore)
         elif self.type == "river":
-            return random.choice(river)
+            return choice(river)
         else:
             return f"{self.type}"
 
@@ -130,11 +130,11 @@ class Square:
         tier1 = ["woods", "rocky", "grassland"]
         tier2 = ["snowy", "shore", "river"]
         if tier == 1:
-            rng = random.choice(tier1)
+            rng = choice(tier1)
             self.music = rng
             return rng
         else:
-            rng = random.choice(tier2)
+            rng = choice(tier2)
             self.music = rng
             return rng
 

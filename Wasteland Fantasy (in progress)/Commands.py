@@ -1,4 +1,4 @@
-import re
+from re import search
 from Items import synonyms
 
 
@@ -23,26 +23,26 @@ def commands(command):
     use = r"^[u|U]se\s"
     unequip = r"^[u|U]nequip\s|^[t|T]ake\soff|^[l|L]oose"
     roll = r"^[r|R]oll"
-    check = re.search(x, command)
-    check_pond = re.search(pond, command)
-    check_newt = re.search(info_newtfolk, command)
-    check_bathy = re.search(info_bathy, command)
-    check_whisp = re.search(info_whisp, command)
-    check_void = re.search(info_void, command)
-    check_ursine = re.search(info_ursine, command)
-    check_newt_ = re.search(newtfolk, command)
-    check_bathy_ = re.search(bathy, command)
-    check_whisp_ = re.search(whisp, command)
-    check_void_ = re.search(void, command)
-    check_ursine_ = re.search(ursine, command)
-    check_attack = re.search(attack, command)
-    check_flee = re.search(flee, command)
-    check_take = re.search(take, command)
-    check_equip = re.search(equip, command)
-    check_drink = re.search(drink, command)
-    check_unequip = re.search(unequip, command)
-    check_roll = re.search(roll, command)
-    check_use = re.search(use, command)
+    check = search(x, command)
+    check_pond = search(pond, command)
+    check_newt = search(info_newtfolk, command)
+    check_bathy = search(info_bathy, command)
+    check_whisp = search(info_whisp, command)
+    check_void = search(info_void, command)
+    check_ursine = search(info_ursine, command)
+    check_newt_ = search(newtfolk, command)
+    check_bathy_ = search(bathy, command)
+    check_whisp_ = search(whisp, command)
+    check_void_ = search(void, command)
+    check_ursine_ = search(ursine, command)
+    check_attack = search(attack, command)
+    check_flee = search(flee, command)
+    check_take = search(take, command)
+    check_equip = search(equip, command)
+    check_drink = search(drink, command)
+    check_unequip = search(unequip, command)
+    check_roll = search(roll, command)
+    check_use = search(use, command)
     if check:
         return move(check.group(0))
     elif check_pond:

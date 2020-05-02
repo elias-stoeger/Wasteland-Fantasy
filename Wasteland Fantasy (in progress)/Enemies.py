@@ -1,21 +1,21 @@
-import random
+from random import randint, choice
 
 
 class Enemy:
     def __init__(self, tier):
         self.tier = tier
         self.name = self.enemy()
-        self.hp = random.choice([tier + 1, tier + 2, tier + 3])
-        self.dmg = random.choice([tier + 1, tier + 2])
+        self.hp = choice([tier + 1, tier + 2, tier + 3])
+        self.dmg = choice([tier + 1, tier + 2])
 
     def enemy(self):
-        rng = random.randint(0, 9)
+        rng = randint(0, 9)
         if rng < 5:
             return None
         elif rng > 5:
-            return random.choice(Enemies[self.tier])
+            return choice(Enemies[self.tier])
         else:
-            return random.choice(NPC)
+            return choice(NPC)
 
 
 # List of Enemies sorted by tier
@@ -32,12 +32,12 @@ NPC = ["Gambler", "Trader", "Guide"]
 def appear(enemy):
     Appearances_Enemy = [f"\nWatch out!\nYou see {enemy} charging at you\n",
                          f"\nYou just barely manage to dodge the mighty first\nsweep of {enemy}\n"]
-    return random.choice(Appearances_Enemy)
+    return choice(Appearances_Enemy)
 
 
 def appear_npc(npc):
     if npc == "Guide":
-        return random.choice(guide_facts)
+        return choice(guide_facts)
     elif npc == "Trader":
         return "trade"
     elif npc == "Gambler":

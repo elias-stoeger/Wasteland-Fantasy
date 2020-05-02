@@ -3,8 +3,9 @@ from Items import *
 from Commands import *
 from Enemies import *
 from World import *
-from tkinter import *
-import platform
+from tkinter import Tk, Text, Button, Label, PhotoImage, INSERT, Toplevel, W, N, NORMAL, END, DISABLED, Scrollbar, \
+                    RIGHT, Y, BOTTOM, X, S, Entry, mainloop, NONE, E, WORD
+from platform import system
 from pygame import mixer, mixer_music
 
 
@@ -27,7 +28,7 @@ root.grid_propagate(False)
 
 # since I usually work on Linux but it looks not quite the same
 # i change it a little depending on the OS
-OS = platform.system()
+OS = system()
 
 root.grid_columnconfigure(1, weight=3)
 root.grid_columnconfigure(2, weight=1)
@@ -139,7 +140,7 @@ def enter(event=None):
         root.destroy()
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
-            Everything.roll = random.randint(1, 6)
+            Everything.roll = randint(1, 6)
             Screen.insert(INSERT, "\"Very well, here's how we do it:\n"
                                   "I will roll a die and show the number..\n"
                                   "Then it is your turn, if you roll higher\n"
@@ -153,7 +154,7 @@ def enter(event=None):
             Screen.insert(INSERT, f"\"Pff.. I expected nothing different from\na {Player.race}...\n")
             Everything.gambling = False
         elif com == "roll":
-            roll = random.randint(1, 6)
+            roll = randint(1, 6)
             Screen.insert(INSERT, f"\nYou roll a {roll}\n\n")
             if roll > Everything.roll:
                 item = get_item(World.current_Square.tier)
@@ -165,7 +166,7 @@ def enter(event=None):
                 stuff = []
                 for item in Player.inventory + Player. equipped:
                     stuff.append(item)
-                loss = random.choice(stuff)
+                loss = choice(stuff)
                 if loss in Player.inventory:
                     Player.inventory.remove(loss)
                 else:
@@ -299,11 +300,11 @@ def enter(event=None):
         if Player.combat is False:
             Screen.insert(INSERT, "\nYou start running in circles in panic!\nBut wait.. where is the threat?\n")
         else:
-            rng = random.randint(0, 9)
+            rng = randint(0, 9)
             if rng > 4:
                 x = World.current_Square.coords.split(",")[0]
                 y = World.current_Square.coords.split(",")[1]
-                newSquare = random.choice([f"{int(x)},{int(y) - 1}", f"{int(x)},{int(y) + 1}",
+                newSquare = choice([f"{int(x)},{int(y) - 1}", f"{int(x)},{int(y) + 1}",
                                           f"{int(x) - 1},{int(y)}", f"{int(x) + 1},{int(y)}"])
                 for s in World.Squares:
                     coords.append(s.coords)
@@ -395,7 +396,7 @@ def loose_stats(boni):
 
 
 def drink_potion():
-    rng = random.randint(0, 9)
+    rng = randint(0, 9)
     if rng > 3:
         Screen.insert(INSERT, "Your health has been restored!\n")
         Player.current_hp = Player.max_hp
@@ -409,7 +410,7 @@ def drink_potion():
 
 def prep_square(last_square):
     World.current_Square.tier = Player.level // 3 + 1
-    rng = random.randint(0, 9)
+    rng = randint(0, 9)
     if World.current_Square.type is None:
         if rng > 1 and last_square.type != "start":
             World.current_Square.type = last_square.type
@@ -464,7 +465,7 @@ def prep_square(last_square):
 
 
 def enemy_turn():
-    e_rng = random.randint(0, 9)
+    e_rng = randint(0, 9)
     damage = World.current_Square.NPCs.dmg
     if e_rng < Player.evasion:
         Screen.insert(INSERT, f"The clumsy attack from {World.current_Square.NPCs.name}\n"
@@ -489,7 +490,7 @@ def enemy_turn():
 
 
 def combat():
-    rng = random.randint(0, 9)
+    rng = randint(0, 9)
     if rng == 0:
         Screen.insert(INSERT, "You missed! That sucks..\n")
         enemy_turn()
@@ -537,7 +538,7 @@ def reward():
         Player.max_hp += 1
         Player.exp2lvl = Player.level * 2 + 2
         Screen.insert(INSERT, f"You reached the next level! Level {Player.level}\n")
-    rng = random.randint(0, 9)
+    rng = randint(0, 9)
     if rng < 6:
         pass
     else:
@@ -571,7 +572,7 @@ def trade():
         Player_items.append(item)
     if Player_items:
         offer = get_item(World.current_Square.tier)
-        price = random.choice(Player_items)
+        price = choice(Player_items)
         Screen.insert(INSERT, f"\nTotally not shady trader:\n"
                               f"\"Hey handsome, can I interest you in...\n"
                               f"a little deal?...\n"
@@ -728,16 +729,16 @@ def character():
 
 
 Input = Entry(root, text="Write a command...")
-Input.grid(row=4, column=1, columnspan=4, sticky=EW+N, pady=10, padx=100)
+Input.grid(row=4, column=1, columnspan=4, sticky=E+W+N, pady=10, padx=100)
 Inventory = Button(root, text="Inventory", bg="#837373", fg="white", command=inventory, font=("Times", 12),
                    relief="solid", highlightbackground="darkgreen", highlightthickness="2")
-Inventory.grid(row=3, column=1, sticky=SW+N, padx=100)
+Inventory.grid(row=3, column=1, sticky=S+W+N, padx=100)
 Map = Button(root, text="Map", command=map_, font=("Times", 12), relief="solid", fg="white", bg="#837373",
              highlightbackground="darkgreen", highlightthickness="2")
-Map.grid(row=3, column=2, sticky=SW + N, padx=60)
+Map.grid(row=3, column=2, sticky=S+W + N, padx=60)
 Character_b = Button(root, text="Character", command=character, font=("Times", 12), relief="solid", fg="white",
                      bg="#837373", highlightbackground="darkgreen", highlightthickness="2")
-Character_b.grid(row=3, column=3, sticky=SW, padx=100)
+Character_b.grid(row=3, column=3, sticky=S+W, padx=100)
 Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=40)
 if OS == "Windows":
     Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), wrap=WORD, height=15, width=50)
