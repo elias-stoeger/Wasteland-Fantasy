@@ -1,14 +1,22 @@
 from random import choice
 from platform import system
+from uuid import uuid1
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, create_engine, Boolean
 
+DB = declarative_base()
 
 OS = system()
 
 
-class World:
+class World(DB):
+    __tablename__ = "World"
+    ID = Column(String, primary_key=True)
+    Squares = Column(String)
+    current_Square = Column(String)
+
     def __init__(self, current_square):
         self.Squares = []
-        self.bioms = []
         self.current_Square = current_square
         self.Squares.append(self.current_Square)
 
@@ -72,7 +80,7 @@ class World:
             elif min(xcoords) < -13:
                 Map.append(" ")
             Map.append("\n")
-        if Map == []:
+        if not Map:
             Map.append("†웃")
         for e in Map:
             s_Map += e
@@ -89,8 +97,20 @@ class World:
         return [max(xcoords), max(ycoords)]
 
 
-class Square:
+class Square(DB):
+    __tablename__ = "Square"
+    ID = Column(String, primary_key=True)
+    coords = Column(String)
+    state = Column(String)
+    type = Column(String)
+    description = Column(String)
+    tier = Column(Integer)
+    music = Column(String)
+    NPC = Column(String)
+    Floor = Column(String)
+
     def __init__(self, coordinate):
+        self.ID = str(uuid1())
         self.coords = coordinate
         self.state = None
         self.type = self.type_()

@@ -1,4 +1,4 @@
-from Player import *
+from Player import Player
 from Items import *
 from Commands import *
 from Enemies import *
@@ -7,7 +7,10 @@ from tkinter import Tk, Text, Button, Label, PhotoImage, INSERT, Toplevel, W, N,
                     RIGHT, Y, BOTTOM, X, S, Entry, mainloop, NONE, E, WORD
 from platform import system
 from pygame import mixer, mixer_music
-
+from sqlalchemy import Column, Integer, String, create_engine, Boolean, MetaData, select, update
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_utils import database_exists, create_database
 
 # All music is royalty free and from https://www.bensound.com/royalty-free-music
 # or the youtube channels https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
@@ -20,6 +23,13 @@ from pygame import mixer, mixer_music
 # also free for use
 
 # Play it on Linux for the prettiest experience
+
+engine = create_engine("sqlite:///Database.db", echo=True)
+if not database_exists("sqlite:///Database.db"):
+    create_database("sqlite:///Database.db")
+DB = declarative_base()
+session = sessionmaker(bind=engine)
+Meta = MetaData()
 
 root = Tk()
 root.geometry("893x664+100+100")
@@ -54,7 +64,15 @@ if OS == "Windows":
 # That's for getting rid of that nasty border of the window
 # root.overrideredirect(True)
 
-class Everything:
+class Everything(DB):
+    __tablename__ = "Everything"
+    pnd = Column(String(20))
+    doneCombat = Column(Boolean, unique=True, default=False)
+    foundItem = Column(Boolean, unique=True, default=False)
+    alive = Column(Boolean, unique=False, default=True, primary_key=True)
+    trading = Column(Boolean, unique=True, default=False)
+    gambling = Column(Boolean, unique=True, default=False)
+
     def __init__(self):
         self.pnd = "False"
         self.doneCombat = False
@@ -72,11 +90,10 @@ class Everything:
 Everything = Everything()
 
 Player = Player()
-DB = None
 mixer.init()
+# DB = None
 
-
-if DB is None:
+if DB is not None:
     Current_Square = Square("0,0")
     Current_Square.music = "start"
     World = World(Current_Square)
@@ -114,7 +131,7 @@ def help_():
 
 
 def start():
-    if DB is None:
+    if DB is not None:
         mixer_music.load("Music/start.mp3")
         mixer_music.play(-1)
         mixer.music.set_volume(0.4)
@@ -138,6 +155,7 @@ def enter(event=None):
     coords = []
     if Everything.alive is False:
         root.destroy()
+        return None
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
             Everything.roll = randint(1, 6)
@@ -202,7 +220,7 @@ def enter(event=None):
                 else:
                     found += 1
             if Everything.trading:
-                found = 0
+                found -= found
                 while found != -1 and found <= len(Player.equipped) - 1:
                     if Player.equipped[found] == Everything.Trade[1]:
                         Player.equipped.remove(Player.equipped[found])
@@ -305,7 +323,7 @@ def enter(event=None):
                 x = World.current_Square.coords.split(",")[0]
                 y = World.current_Square.coords.split(",")[1]
                 newSquare = choice([f"{int(x)},{int(y) - 1}", f"{int(x)},{int(y) + 1}",
-                                          f"{int(x) - 1},{int(y)}", f"{int(x) + 1},{int(y)}"])
+                                    f"{int(x) - 1},{int(y)}", f"{int(x) + 1},{int(y)}"])
                 for s in World.Squares:
                     coords.append(s.coords)
                 if newSquare in coords:

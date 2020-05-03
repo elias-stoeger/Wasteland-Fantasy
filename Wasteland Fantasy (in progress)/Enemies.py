@@ -1,8 +1,22 @@
 from random import randint, choice
+from uuid import uuid1
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+
+DB = declarative_base()
 
 
-class Enemy:
+class Enemy(DB):
+    __tablename__ = "Enemies"
+    ID = Column(String, primary_key=True)
+    tier = Column(Integer)
+    name = Column(String)
+    hp = Column(Integer)
+    damage = Column(Integer)
+    place = Column(String)
+
     def __init__(self, tier):
+        self.ID = str(uuid1())
         self.tier = tier
         self.name = self.enemy()
         self.hp = choice([tier + 1, tier + 2, tier + 3])

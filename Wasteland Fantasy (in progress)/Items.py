@@ -1,8 +1,23 @@
 from random import choice
+from uuid import uuid1
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+
+DB = declarative_base()
 
 
-class Item:
+class Item(DB):
+    __tablename__ = "items"
+    ID = Column(String, primary_key=True)
+    Name = Column(String)
+    boni = Column(String)
+    description = Column(String)
+    type = Column(String)
+    tier = Column(Integer)
+    place = Column(String)
+
     def __init__(self, name, boni, tier):
+        self.ID = str(uuid1())
         self.Name = name
         self.boni = boni  # damage, defense, evasion
         self.description = self.get_description()
