@@ -1,4 +1,28 @@
-class Player:
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, create_engine
+
+engine = create_engine("sqlite:///Database.db", echo=False)
+DB = declarative_base()
+
+
+class Player(DB):
+    __tablename__ = "Player"
+    name = Column(String, primary_key=True)
+    race = Column(String)
+    max_hp = Column(Integer)
+    current_hp = Column(Integer)
+    exp = Column(Integer)
+    level = Column(Integer)
+    exp2lvl = Column(Integer)
+    damage = Column(Integer)
+    defense = Column(Integer)
+    evasion = Column(Integer)
+    inventory = Column(String)
+    equipped = Column(String)
+    ready = Column(Boolean, unique=False, default=True)
+    busy = Column(Boolean, unique=False, default=True)
+    combat = Column(Boolean, unique=False, default=True)
+
     def __init__(self):
         self.name = None
         self.race = None
@@ -43,7 +67,7 @@ class Player:
             self.dmg = 2
         elif self.race == "Ursine":
             self.max_hp = 14
-            self.current_hp = 14
+            self.current_hp = 1
 
 
 # Races:
@@ -52,3 +76,5 @@ class Player:
 # Whispling -> dodging
 # Voidspawn -> damage
 # Ursine -> health
+
+DB.metadata.create_all(engine)

@@ -7,7 +7,7 @@ from tkinter import Tk, Text, Button, Label, PhotoImage, INSERT, Toplevel, W, N,
                     RIGHT, Y, BOTTOM, X, S, Entry, mainloop, NONE, E, WORD
 from platform import system
 from pygame import mixer, mixer_music
-from sqlalchemy import Column, Integer, String, create_engine, Boolean, MetaData, select, update
+from sqlalchemy import Column, String, create_engine, Boolean, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
@@ -24,11 +24,12 @@ from sqlalchemy_utils import database_exists, create_database
 
 # Play it on Linux for the prettiest experience
 
-engine = create_engine("sqlite:///Database.db", echo=True)
+engine = create_engine("sqlite:///Database.db", echo=False)
 if not database_exists("sqlite:///Database.db"):
     create_database("sqlite:///Database.db")
 DB = declarative_base()
-session = sessionmaker(bind=engine)
+sessionClass = sessionmaker(bind=engine)
+session = sessionClass()
 Meta = MetaData()
 
 root = Tk()
@@ -91,14 +92,25 @@ Everything = Everything()
 
 Player = Player()
 mixer.init()
-# DB = None
+DB_player = session.query(World).first()
+logs_ = []
 
-if DB is not None:
+if DB_player is None:
     Current_Square = Square("0,0")
     Current_Square.music = "start"
     World = World(Current_Square)
 else:
-    print("Well that's awkward")
+    if not Player.ready:
+        Current_Square = Square("0,0")
+        Current_Square.music = "start"
+        World = World(Current_Square)
+
+
+logs = Table(
+    "logs", Meta,
+    Column("ID", Integer, primary_key=True),
+    Column("entries", String),
+)
 
 
 def help_():
@@ -131,7 +143,7 @@ def help_():
 
 
 def start():
-    if DB is not None:
+    if DB_player is None:
         mixer_music.load("Music/start.mp3")
         mixer_music.play(-1)
         mixer.music.set_volume(0.4)
@@ -143,6 +155,23 @@ def start():
 
         Log.insert(INSERT, "Log:\n"
                            "You woke up\n")
+        logs_.append("Log:\nYou woke up\n")
+    else:
+        mixer_music.load(f"Music/{World.current_Square.music}.mp3")
+        mixer_music.play(-1)
+        mixer.music.set_volume(0.4)
+        Screen.insert(INSERT, World.current_Square.description)
+        for element in logs_:
+            Log.insert(INSERT, element)
+
+
+def clear_db():
+    print("here")
+    for table in reversed(Meta.sorted_tables):
+        for item in table:
+            print("deleting", item)
+            session.delete(item)
+    session.commit()
 
 
 def enter(event=None):
@@ -154,6 +183,7 @@ def enter(event=None):
     last_square = World.current_Square
     coords = []
     if Everything.alive is False:
+        clear_db()
         root.destroy()
         return None
     elif Everything.gambling:
@@ -180,6 +210,7 @@ def enter(event=None):
                                       f"The gambler hands you {item.Name}\n\n")
                 Player.inventory.append(item)
                 Log.insert(INSERT, f"You won\n{item.Name}\n\n")
+                logs_.append(f"You won\n{item.Name}\n\n")
             elif roll < Everything.roll:
                 stuff = []
                 for item in Player.inventory + Player. equipped:
@@ -191,6 +222,7 @@ def enter(event=None):
                     Player.equipped.remove(loss)
                 Screen.insert(INSERT, f"Harharhar.. your {loss.Name}\nwill look good in my collection..\n")
                 Log.insert(INSERT, f"You lost {loss.Name}\nto a gambler...\n\n")
+                logs_.append(f"You lost {loss.Name}\nto a gambler...\n\n")
             else:
                 Screen.insert(INSERT, f"The figure takes out a small knife and with\na swift cut...\n"
                                       f"You loose {(Player.current_hp + 1) // 2} HP..\n")
@@ -209,6 +241,7 @@ def enter(event=None):
             Screen.insert(INSERT, "\n\"Hehehe...\"\n")
             Log.insert(INSERT, f"You traded\n"
                                f"{Everything.Trade[1].Name} for\n{Everything.Trade[0].Name}\n\n")
+            logs_.append(f"You traded\n{Everything.Trade[1].Name} for\n{Everything.Trade[0].Name}\n\n")
             found = 0
             while found != -1 and found <= len(Player.inventory) - 1:
                 if Player.inventory[found] == Everything.Trade[1]:
@@ -272,6 +305,7 @@ def enter(event=None):
             Screen.insert(INSERT, f"You gaze into the water and see your reflection:\n\n{Player.pond()}\n\n\n"
                                   f"Use the cardinal directions (North, East, South and West)\nto move around")
             Log.insert(INSERT, "\nYou remembered who \nyou are\n\n")
+            logs_.append("\nYou remembered who \nyou are\n\n")
             Everything.pnd = False
             Everything.character_uptodate = False
         elif World.current_Square.type == "start" and World.current_Square.state is None and Everything.pnd == "False":
@@ -344,6 +378,7 @@ def enter(event=None):
             Screen.insert(INSERT, f"\nYou pick up {World.current_Square.Floor.Name} and\nstuff it in your backpack.\n")
             Player.inventory.append(World.current_Square.Floor)
             Log.insert(INSERT, f"You found\n{World.current_Square.Floor.Name}\n\n")
+            logs_.append(f"You found\n{World.current_Square.Floor.Name}\n\n")
             World.current_Square.Floor = None
             Everything.inventory_uptodate = False
         else:
@@ -746,6 +781,75 @@ def character():
     char_pop.after(1000, update)
 
 
+def save():
+    # After long consideration, a save button
+    # is way easier to do than just saving everything
+    # real time and the exit button was redundant anyways
+
+    # Database stuff
+    # Player
+    x = Player.equipped
+    y = Player.inventory
+    items_e = ""
+    items_i = ""
+    for item in Player.equipped:
+        items_e += str(item.ID)
+    for item in Player.inventory:
+        items_i += str(item.ID)
+    Player.equipped = items_e
+    Player.inventory = items_i
+    session.add(Player)
+    session.commit()
+    Player.equipped = x
+    Player.inventory = y
+
+    # World
+    x = World.current_Square
+    y = World.Squares
+    World_current = x.ID
+    World_sq = ""
+    for square in World.Squares:
+        World_sq += str(square.ID)
+    World.current_Square = World_current
+    World.Squares = World_sq
+    session.add(World)
+    session.commit()
+    World.current_Square = x
+    World.Squares = y
+
+    # Squares
+    for square in World.Squares:
+        x = square
+        square.NPC = square.NPC.ID
+        square.Floor = square.Floor.ID
+        session.add(square)
+        square.NPC = x.NPC
+        square.floor = x.Floor
+    session.commit()
+
+    # Enemies
+    for square in World.Squares:
+        session.add(square.NPC)
+    session.commit()
+
+    # Items
+    all_items = []
+    for square in World.Squares:
+        all_items.append(square.Floor)
+    for item in Player.inventory + Player.equipped:
+        all_items.append(item)
+    for item in all_items:
+        session.add(item)
+    session.commit()
+
+    # logs
+    for item in logs_:
+        session.execute(logs.insert().values(ID=str(uuid1()), entries=item))
+
+    # Everything
+    session.add(Everything)
+
+
 Input = Entry(root, text="Write a command...")
 Input.grid(row=4, column=1, columnspan=4, sticky=E+W+N, pady=10, padx=100)
 Inventory = Button(root, text="Inventory", bg="#837373", fg="white", command=inventory, font=("Times", 12),
@@ -766,9 +870,9 @@ else:
     Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12), wrap=WORD)
 Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W+S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
-Exit = Button(root, text="Close", command=root.destroy, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
+Save = Button(root, text="Save", command=save, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
-Exit.grid(row=5, column=5, sticky=S)
+Save.grid(row=5, column=5, sticky=S)
 Help = Button(root, text="Help", bg="#430C0C", fg="white", command=help_, font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
 Help.grid(row=5, column=0, sticky=S)
@@ -778,5 +882,13 @@ Input.bind("<Return>", enter)
 Screen.config(state=DISABLED)
 Log.config(state=DISABLED)
 
-
+Meta.create_all(engine)
+DB.metadata.create_all(engine)
+#y = session.query(Item).get(0)
+#print(y)
+#it = session.query(Item).all()
+#for x in it:
+#    session.delete(x)
+session.commit()
+session.close()
 mainloop()

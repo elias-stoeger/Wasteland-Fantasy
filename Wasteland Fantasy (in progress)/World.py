@@ -2,9 +2,10 @@ from random import choice
 from platform import system
 from uuid import uuid1
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, create_engine, Boolean
+from sqlalchemy import Column, Integer, String, create_engine
 
 DB = declarative_base()
+engine = create_engine("sqlite:///Database.db", echo=False)
 
 OS = system()
 
@@ -200,3 +201,5 @@ river = ["The first thing to do when trying to survive\nin a foreign place is fi
          "I remember fishing in a river like this\nwhen i was younger but the fish have grown\na lot more confrontative since then...\n",
          "You feel watched... As if something was\nlingering in the muddy water...\n",
          "Most cities are built near rivers...\nShould I follow it?..\n"]
+
+DB.metadata.create_all(engine)

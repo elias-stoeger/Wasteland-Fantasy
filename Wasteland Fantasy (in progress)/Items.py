@@ -1,9 +1,10 @@
 from random import choice
 from uuid import uuid1
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 DB = declarative_base()
+engine = create_engine("sqlite:///Database.db", echo=False)
 
 
 class Item(DB):
@@ -14,7 +15,7 @@ class Item(DB):
     description = Column(String)
     type = Column(String)
     tier = Column(Integer)
-    place = Column(String)
+    # place = Column(String)
 
     def __init__(self, name, boni, tier):
         self.ID = str(uuid1())
@@ -94,3 +95,5 @@ synonyms = {"a sharp rock": ["a sharp rock", "sharp rock", "rock", "the sharp ro
             "sandpaper glove": ["sandpaper glove", "Sandpaper glove", "Sandpaper Glove", "sandpaper", "glove"],
             "rollerskating gear": ["rollerskating gear", "skating gear", "gear", "Gear"],
             "a mysterious liquid": ["a mysterious liquid", "potion", "Potion", "liquid", "Liquid", "mysterious liquid"]}
+
+DB.metadata.create_all(engine)
