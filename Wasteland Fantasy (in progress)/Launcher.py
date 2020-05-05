@@ -1,4 +1,4 @@
-from Player import Player
+from Player import Player_
 from Items import *
 from Commands import *
 from Enemies import *
@@ -68,11 +68,11 @@ if OS == "Windows":
 class Everything(DB):
     __tablename__ = "Everything"
     pnd = Column(String(20))
-    doneCombat = Column(Boolean, unique=True, default=False)
-    foundItem = Column(Boolean, unique=True, default=False)
-    alive = Column(Boolean, unique=False, default=True, primary_key=True)
-    trading = Column(Boolean, unique=True, default=False)
-    gambling = Column(Boolean, unique=True, default=False)
+    doneCombat = Column(Boolean, default=False)
+    foundItem = Column(Boolean, default=False)
+    alive = Column(Boolean, default=True, primary_key=True)
+    trading = Column(Boolean, default=False)
+    gambling = Column(Boolean, default=False)
 
     def __init__(self):
         self.pnd = "False"
@@ -90,27 +90,38 @@ class Everything(DB):
 
 Everything = Everything()
 
-Player = Player()
+Player = Player_()
 mixer.init()
-DB_player = session.query(World).first()
+DB_player = session.query(World_).first()
 logs_ = []
 
 if DB_player is None:
     Current_Square = Square("0,0")
     Current_Square.music = "start"
-    World = World(Current_Square)
+    World = World_(Current_Square)
 else:
     if not Player.ready:
         Current_Square = Square("0,0")
         Current_Square.music = "start"
-        World = World(Current_Square)
+        World = World_(Current_Square)
 
 
 logs = Table(
     "logs", Meta,
-    Column("ID", Integer, primary_key=True),
+    Column("ID", String, primary_key=True),
     Column("entries", String),
 )
+
+
+class Megamind:
+    def __init__(self):
+        self.inventory_mem = []
+        self.equipped = []
+        self.Squares = []
+        self.current = []
+
+
+Megamind = Megamind()
 
 
 def help_():
@@ -787,67 +798,107 @@ def save():
     # real time and the exit button was redundant anyways
 
     # Database stuff
+    """print("at least it started")
+    it = session.query(Player_).all()
+    for x in it:
+        session.delete(x)
+    print("step1")
+    it = session.query(Item).all()
+    for x in it:
+        session.delete(x)
+    print("step2")
+    it = session.query(World_).all()
+    for x in it:
+        session.delete(x)
+    print("step3")
+    it = session.query(Square).all()
+    for x in it:
+        session.delete(x)
+    print("step4")
+    it = session.query(logs).all()
+    for x in it:
+        session.delete(x)
+    session.commit()
+    print("only here")
+"""
+    for table in reversed(Meta.sorted_tables):
+        session.execute(table.delete())
+    session.commit()
+    print("delete worked!")
+
     # Player
-    x = Player.equipped
-    y = Player.inventory
-    items_e = ""
-    items_i = ""
-    for item in Player.equipped:
-        items_e += str(item.ID)
     for item in Player.inventory:
-        items_i += str(item.ID)
-    Player.equipped = items_e
-    Player.inventory = items_i
+        Megamind.inventory_mem.append(item)
+    for item in Player.equipped:
+        Megamind.equipped.append(item)
+    z = []
+    for item in Player.inventory + Player.equipped:
+        z.append(item)
+    Player.makestring()
     session.add(Player)
     session.commit()
-    Player.equipped = x
-    Player.inventory = y
+    print("here")
 
     # World
     x = World.current_Square
     y = World.Squares
-    World_current = x.ID
-    World_sq = ""
-    for square in World.Squares:
-        World_sq += str(square.ID)
-    World.current_Square = World_current
-    World.Squares = World_sq
+    Megamind.current.append(x)
+    Megamind.Squares.append(y)
+    World.makestring()
     session.add(World)
     session.commit()
-    World.current_Square = x
-    World.Squares = y
 
     # Squares
-    for square in World.Squares:
-        x = square
-        square.NPC = square.NPC.ID
-        square.Floor = square.Floor.ID
+    for square in y:
+        if square.NPC is not None:
+            square.NPC = square.NPC.ID
+        else:
+            square.NPC = "empty"
+        if square.Floor is not None:
+            square.Floor = square.Floor.ID
+        else:
+            square.Floor = "empty"
         session.add(square)
         square.NPC = x.NPC
         square.floor = x.Floor
     session.commit()
 
     # Enemies
-    for square in World.Squares:
-        session.add(square.NPC)
+    for square in y:
+        if square.NPCs is not None:
+            session.add(square.NPCs)
     session.commit()
 
     # Items
-    all_items = []
-    for square in World.Squares:
-        all_items.append(square.Floor)
-    for item in Player.inventory + Player.equipped:
-        all_items.append(item)
-    for item in all_items:
-        session.add(item)
-    session.commit()
+    if z:
+        all_items = []
+        for square in y:
+            if square.Floor is not None:
+                all_items.append(square.Floor)
+        for item in z:
+            all_items.append(item)
+        for item in all_items:
+            session.add(item)
+        session.commit()
 
     # logs
     for item in logs_:
         session.execute(logs.insert().values(ID=str(uuid1()), entries=item))
+        session.commit()
 
     # Everything
     session.add(Everything)
+    session.commit()
+    Screen.config(state=NORMAL)
+    Screen.insert(INSERT, "\nGame saved!\n\n")
+    Screen.config(state=DISABLED)
+    Screen.see("end")
+
+    # restore Gamefiles
+    Player.inventory = Megamind.inventory_mem
+    Player.equipped = Megamind.equipped
+    World.current_Square = Megamind.current
+    World.Squares = Megamind.Squares
 
 
 Input = Entry(root, text="Write a command...")

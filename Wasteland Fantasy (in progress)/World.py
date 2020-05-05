@@ -10,13 +10,14 @@ engine = create_engine("sqlite:///Database.db", echo=False)
 OS = system()
 
 
-class World(DB):
+class World_(DB):
     __tablename__ = "World"
     ID = Column(String, primary_key=True)
     Squares = Column(String)
     current_Square = Column(String)
 
     def __init__(self, current_square):
+        self.ID = str(uuid1())
         self.Squares = []
         self.current_Square = current_square
         self.Squares.append(self.current_Square)
@@ -97,6 +98,13 @@ class World(DB):
             ycoords.append(int(x[1]))
         return [max(xcoords), max(ycoords)]
 
+    def makestring(self):
+        self.current_Square = str(self.current_Square.ID)
+        World_sq = ""
+        for square in self.Squares:
+            World_sq += str(square.ID + ",")
+        self.Squares = World_sq
+
 
 class Square(DB):
     __tablename__ = "Square"
@@ -168,7 +176,7 @@ woods = ["You are surrounded by high trees and mushrooms\nThe light smell of the
 
 
 rocky = ["\"Sharp stones all around, i really don't want\nto trip here\"\n\n",
-         "Who knows what is hiding between those bolders?\nI have heard rumors of adders nesting around\nthese field.\nBetter not find out...\n",
+         "Who knows what is hiding between those bolders?\nI have heard rumors of adders nesting around\nthese fields.\nBetter not find out...\n",
          "The knife-like stones cut deep into your feet.\nWhat creatures could be tough enough to\nlive here?\n",
          "You struggle to climb over the heaps of rocks\nand bolders.\nOne wrong step and you may brake more\nthan just a limb..\n",
          "OUCH!.. stubbed my toe on a rock again..\nAnother one down....\n"]

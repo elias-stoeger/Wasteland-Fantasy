@@ -5,7 +5,7 @@ engine = create_engine("sqlite:///Database.db", echo=False)
 DB = declarative_base()
 
 
-class Player(DB):
+class Player_(DB):
     __tablename__ = "Player"
     name = Column(String, primary_key=True)
     race = Column(String)
@@ -14,7 +14,7 @@ class Player(DB):
     exp = Column(Integer)
     level = Column(Integer)
     exp2lvl = Column(Integer)
-    damage = Column(Integer)
+    dmg = Column(Integer)
     defense = Column(Integer)
     evasion = Column(Integer)
     inventory = Column(String)
@@ -39,6 +39,9 @@ class Player(DB):
         self.ready = False
         self.busy = False
         self.combat = False
+
+    memory_items = []
+    memory_equipped = []
 
     def pond(self):
         x = ""
@@ -67,7 +70,21 @@ class Player(DB):
             self.dmg = 2
         elif self.race == "Ursine":
             self.max_hp = 14
-            self.current_hp = 1
+            self.current_hp = 14
+
+    def makestring(self):
+        i = []
+        e = []
+        for item in self.equipped:
+            e.append(str(item.ID))
+        for item in self.inventory:
+            i.append(str(item.ID))
+        if not i:
+            i = "empty"
+        if not e:
+            e = "empty"
+        self.inventory = i
+        self.equipped = e
 
 
 # Races:
