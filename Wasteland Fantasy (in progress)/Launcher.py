@@ -11,6 +11,7 @@ from sqlalchemy import Column, String, create_engine, Boolean, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
+from copy import deepcopy
 
 # All music is royalty free and from https://www.bensound.com/royalty-free-music
 # or the youtube channels https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
@@ -115,10 +116,10 @@ logs = Table(
 
 class Megamind:
     def __init__(self):
-        self.inventory_mem = []
-        self.equipped = []
-        self.Squares = []
-        self.current = []
+        self.inventory_mem = None
+        self.World_mem = None
+        self.Player = None
+        self.World = None
 
 
 Megamind = Megamind()
@@ -177,11 +178,25 @@ def start():
 
 
 def clear_db():
-    print("here")
-    for table in reversed(Meta.sorted_tables):
-        for item in table:
-            print("deleting", item)
-            session.delete(item)
+    print("at least it started")
+    it = session.query(Player_).all()
+    for x in it:
+        session.delete(x)
+    print("step1")
+    it = session.query(Item).all()
+    for x in it:
+        session.delete(x)
+    print("step2")
+    it = session.query(World_).all()
+    for x in it:
+        session.delete(x)
+    print("step3")
+    it = session.query(Square).all()
+    for x in it:
+        session.delete(x)
+    print("step4")
+    logs.delete()
+    print("only here")
     session.commit()
 
 
@@ -798,33 +813,9 @@ def save():
     # real time and the exit button was redundant anyways
 
     # Database stuff
-    """print("at least it started")
-    it = session.query(Player_).all()
-    for x in it:
-        session.delete(x)
-    print("step1")
-    it = session.query(Item).all()
-    for x in it:
-        session.delete(x)
-    print("step2")
-    it = session.query(World_).all()
-    for x in it:
-        session.delete(x)
-    print("step3")
-    it = session.query(Square).all()
-    for x in it:
-        session.delete(x)
-    print("step4")
-    it = session.query(logs).all()
-    for x in it:
-        session.delete(x)
-    session.commit()
-    print("only here")
-"""
-    for table in reversed(Meta.sorted_tables):
-        session.execute(table.delete())
-    session.commit()
-    print("delete worked!")
+    clear_db()
+    P_ = deepcopy(Player)
+    W_ = deepcopy(World)
 
     # Player
     for item in Player.inventory:
@@ -843,7 +834,8 @@ def save():
     x = World.current_Square
     y = World.Squares
     Megamind.current.append(x)
-    Megamind.Squares.append(y)
+    for item in y:
+        Megamind.Squares.append(item)
     World.makestring()
     session.add(World)
     session.commit()
@@ -895,10 +887,16 @@ def save():
     Screen.see("end")
 
     # restore Gamefiles
-    Player.inventory = Megamind.inventory_mem
-    Player.equipped = Megamind.equipped
-    World.current_Square = Megamind.current
-    World.Squares = Megamind.Squares
+    #Player = P_
+    #World = W_
+    #Player.equipped = Megamind.equipped
+    #World.current_Square = Megamind.current[0]
+    #World.Squares = Megamind.Squares
+    #print(World.Squares)
+    #Megamind.inventory_mem = []
+    #Megamind.equipped = []
+    #Megamind.Squares = []
+    #Megamind.current = []
 
 
 Input = Entry(root, text="Write a command...")
@@ -921,7 +919,7 @@ else:
     Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12), wrap=WORD)
 Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W+S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
-Save = Button(root, text="Save", command=save, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
+Save = Button(root, text="Save", command="""save""", bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
 Save.grid(row=5, column=5, sticky=S)
 Help = Button(root, text="Help", bg="#430C0C", fg="white", command=help_, font=("Times", 12), relief="solid",
