@@ -114,17 +114,6 @@ logs = Table(
 )
 
 
-class Megamind:
-    def __init__(self):
-        self.inventory_mem = None
-        self.World_mem = None
-        self.Player = None
-        self.World = None
-
-
-Megamind = Megamind()
-
-
 def help_():
     help_pop = Toplevel()
     if OS == "Windows":
@@ -178,25 +167,19 @@ def start():
 
 
 def clear_db():
-    print("at least it started")
     it = session.query(Player_).all()
     for x in it:
         session.delete(x)
-    print("step1")
     it = session.query(Item).all()
     for x in it:
         session.delete(x)
-    print("step2")
     it = session.query(World_).all()
     for x in it:
         session.delete(x)
-    print("step3")
     it = session.query(Square).all()
     for x in it:
         session.delete(x)
-    print("step4")
     logs.delete()
-    print("only here")
     session.commit()
 
 
@@ -456,6 +439,8 @@ def enter(event=None):
             Screen.insert(INSERT, f"You don't seem to be wearing {com[1]}\n")
         Everything.character_uptodate = False
         Everything.inventory_uptodate = False
+    elif com == "save":
+        save()
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
@@ -812,32 +797,34 @@ def save():
     # is way easier to do than just saving everything
     # real time and the exit button was redundant anyways
 
+    if Player.ready is False:
+        Screen.config(state=NORMAL)
+        Screen.insert(INSERT, "\nDon't you wanna create a character first?\n")
+        Screen.config(state=DISABLED)
+        Screen.see("end")
+        return None
+
     # Database stuff
     clear_db()
     P_ = deepcopy(Player)
     W_ = deepcopy(World)
+    I_ = deepcopy(Player.inventory + Player.equipped)
 
     # Player
-    for item in Player.inventory:
-        Megamind.inventory_mem.append(item)
-    for item in Player.equipped:
-        Megamind.equipped.append(item)
-    z = []
-    for item in Player.inventory + Player.equipped:
-        z.append(item)
-    Player.makestring()
-    session.add(Player)
+    r = []
+    for item in I_:
+        if item != "empty":
+            r.append(item)
+    z = deepcopy(r)
+    P_.makestring()
+    session.add(P_)
     session.commit()
-    print("here")
 
     # World
-    x = World.current_Square
-    y = World.Squares
-    Megamind.current.append(x)
-    for item in y:
-        Megamind.Squares.append(item)
-    World.makestring()
-    session.add(World)
+    x = W_.current_Square
+    y = W_.Squares
+    W_.makestring()
+    session.add(W_)
     session.commit()
 
     # Squares
@@ -858,6 +845,7 @@ def save():
     # Enemies
     for square in y:
         if square.NPCs is not None:
+            square.NPCs.extraUniqueID = str(uuid1(3))
             session.add(square.NPCs)
     session.commit()
 
@@ -865,12 +853,14 @@ def save():
     if z:
         all_items = []
         for square in y:
-            if square.Floor is not None:
+            if square.Floor is not None and square.Floor != "empty":
                 all_items.append(square.Floor)
         for item in z:
             all_items.append(item)
         for item in all_items:
-            session.add(item)
+            if type(item) != type("string"):
+                item.boni = str(item.boni)[1:-1]
+                session.add(item)
         session.commit()
 
     # logs
@@ -885,18 +875,6 @@ def save():
     Screen.insert(INSERT, "\nGame saved!\n\n")
     Screen.config(state=DISABLED)
     Screen.see("end")
-
-    # restore Gamefiles
-    #Player = P_
-    #World = W_
-    #Player.equipped = Megamind.equipped
-    #World.current_Square = Megamind.current[0]
-    #World.Squares = Megamind.Squares
-    #print(World.Squares)
-    #Megamind.inventory_mem = []
-    #Megamind.equipped = []
-    #Megamind.Squares = []
-    #Megamind.current = []
 
 
 Input = Entry(root, text="Write a command...")
@@ -919,7 +897,7 @@ else:
     Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12), wrap=WORD)
 Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W+S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
-Save = Button(root, text="Save", command="""save""", bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
+Save = Button(root, text="Save", command=save, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
 Save.grid(row=5, column=5, sticky=S)
 Help = Button(root, text="Help", bg="#430C0C", fg="white", command=help_, font=("Times", 12), relief="solid",
@@ -933,11 +911,11 @@ Log.config(state=DISABLED)
 
 Meta.create_all(engine)
 DB.metadata.create_all(engine)
-#y = session.query(Item).get(0)
-#print(y)
-#it = session.query(Item).all()
-#for x in it:
-#    session.delete(x)
+# y = session.query(Item).get(0)
+# print(y)
+# it = session.query(Item).all()
+# for x in it:
+#     session.delete(x)
 session.commit()
 session.close()
 mainloop()

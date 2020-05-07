@@ -9,12 +9,14 @@ engine = create_engine("sqlite:///Database.db", echo=False)
 
 class Enemy(DB):
     __tablename__ = "Enemies"
-    ID = Column(String, primary_key=True)
+    ID = Column(String)
     tier = Column(Integer)
     name = Column(String)
     hp = Column(Integer)
     damage = Column(Integer)
-    # place = Column(String)
+    # Enemies wanted to be snowflakes, messing with the
+    # database so they get their own...
+    extraUniqueID = Column(String, primary_key=True)
 
     def __init__(self, tier):
         self.ID = str(uuid1())
@@ -22,6 +24,7 @@ class Enemy(DB):
         self.name = self.enemy()
         self.hp = choice([tier + 1, tier + 2, tier + 3])
         self.dmg = choice([tier + 1, tier + 2])
+        self.extraUniqueID = str(uuid1(2))
 
     def enemy(self):
         rng = randint(0, 9)

@@ -81,10 +81,14 @@ class Player_(DB):
             i.append(str(item.ID))
         if not i:
             i = "empty"
+        else:
+            i = str(i)
         if not e:
             e = "empty"
-        self.inventory = i
-        self.equipped = e
+        else:
+            e = str(e)
+        self.inventory = i[1:-1]
+        self.equipped = e[1:-1]
 
 
 # Races:

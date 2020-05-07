@@ -15,7 +15,6 @@ class Item(DB):
     description = Column(String)
     type = Column(String)
     tier = Column(Integer)
-    # place = Column(String)
 
     def __init__(self, name, boni, tier):
         self.ID = str(uuid1())
