@@ -108,7 +108,7 @@ class World_(DB):
 
 class Square(DB):
     __tablename__ = "Square"
-    ID = Column(String, primary_key=True)
+    ID = Column(String)
     coords = Column(String)
     state = Column(String)
     type = Column(String)
@@ -117,6 +117,7 @@ class Square(DB):
     music = Column(String)
     NPC = Column(String)
     Floor = Column(String)
+    ID2 = Column(String, primary_key=True)
 
     def __init__(self, coordinate):
         self.ID = str(uuid1())
@@ -128,6 +129,7 @@ class Square(DB):
         self.music = None
         self.NPCs = None
         self.Floor = None
+        self.ID2 = str(uuid1(2))
 
     def type_(self):
         if self.coords == "0,0":

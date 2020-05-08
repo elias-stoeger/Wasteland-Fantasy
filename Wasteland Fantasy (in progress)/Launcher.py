@@ -4,7 +4,7 @@ from Commands import *
 from Enemies import *
 from World import *
 from tkinter import Tk, Text, Button, Label, PhotoImage, INSERT, Toplevel, W, N, NORMAL, END, DISABLED, Scrollbar, \
-                    RIGHT, Y, BOTTOM, X, S, Entry, mainloop, NONE, E, WORD
+    RIGHT, Y, BOTTOM, X, S, Entry, mainloop, NONE, E, WORD
 from platform import system
 from pygame import mixer, mixer_music
 from sqlalchemy import Column, String, create_engine, Boolean, MetaData, Table
@@ -56,6 +56,7 @@ root.resizable(0, 0)
 
 if OS == "Windows":
     from ctypes import windll
+
     # The failed abortion of an OS that is Windows
     # messes up the font, displaying it blurry so
     # I use this line to fix that complete bs
@@ -66,7 +67,7 @@ if OS == "Windows":
 # That's for getting rid of that nasty border of the window
 # root.overrideredirect(True)
 
-class Everything(DB):
+class Everything_(DB):
     __tablename__ = "Everything"
     pnd = Column(String(20))
     doneCombat = Column(Boolean, default=False)
@@ -89,29 +90,136 @@ class Everything(DB):
         self.character_uptodate = True
 
 
-Everything = Everything()
+Everything = Everything_()
 
 Player = Player_()
 mixer.init()
 DB_player = session.query(World_).first()
 logs_ = []
-
-if DB_player is None:
-    Current_Square = Square("0,0")
-    Current_Square.music = "start"
-    World = World_(Current_Square)
-else:
-    if not Player.ready:
-        Current_Square = Square("0,0")
-        Current_Square.music = "start"
-        World = World_(Current_Square)
-
-
 logs = Table(
     "logs", Meta,
     Column("ID", String, primary_key=True),
     Column("entries", String),
 )
+
+
+def load():
+    DB_P = session.query(Player_).first()
+    DB_W = session.query(World_).first()
+    DB_L = engine.connect().execute(logs.select())
+    DB_E = session.query(Everything_).first()
+    DB_S = session.query(Square).all()
+    DB_I = session.query(Item).all()
+    DB_N = session.query(Enemy).all()
+
+    # Items
+    DB_Items = []
+    for item in DB_I:
+        item.boni = item.boni.split(",")
+        item.boni[0] = int(item.boni[0])
+        item.boni[1] = int(item.boni[1])
+        item.boni[2] = int(item.boni[2])
+        i = Item(item.Name, item.boni, item.tier)
+        i.ID = item.ID
+        DB_Items.append(deepcopy(i))
+    Item_Dict = {}
+    for item in DB_Items:
+        Item_Dict[item.ID] = item
+
+    # Player
+    Player.name = DB_P.name
+    Player.race = DB_P.race
+    Player.max_hp = DB_P.max_hp
+    Player.current_hp = DB_P.current_hp
+    Player.exp = DB_P.exp
+    Player.level = DB_P.level
+    Player.exp2lvl = DB_P.exp2lvl
+    Player.dmg = DB_P.dmg
+    Player.defense = DB_P.defense
+    Player.evasion = DB_P.evasion
+    DB_P.inventory = DB_P.inventory.split(",")
+    DB_P.equipped = DB_P.equipped.split(",")
+    loaded_inv = []
+    for item in DB_P.inventory:
+        # for no god-damned reason whatsoever, some of the
+        # items have a space between the inner and outer "..
+        # TOOK ME A WHILE TO REALIZE WHY THE ITEMS WERE DISAPPEARING
+        # but now it should work
+        item = item.strip()
+        if item[1:-1] in Item_Dict:
+            loaded_inv.append(Item_Dict[item[1:-1]])
+    loaded_equ = []
+    for item in DB_P.equipped:
+        item = item.strip()
+        if item[1:-1] in Item_Dict:
+            loaded_equ.append(Item_Dict[item[1:-1]])
+    Player.inventory = loaded_inv
+    Player.equipped = loaded_equ
+    Player.ready = DB_P.ready
+    Player.busy = DB_P.busy
+    Player.combat = DB_P.combat
+    print(Player.inventory)
+    print(loaded_inv)
+    print(DB_P.inventory)
+
+    # Enemies
+    DB_Enemies = []
+    for enemy in DB_N:
+        e = Enemy(enemy.tier)
+        e.ID = enemy.ID
+        e.name = enemy.name
+        DB_Enemies.append(deepcopy(e))
+
+    # Squares
+    DB_Squares = []
+    for square in DB_S:
+        if square.NPC is not None:
+            for i in range(0, len(DB_Enemies)):
+                if square.NPC == DB_Enemies[i]:
+                    square.NPC = DB_Enemies[i]
+        if square.Floor is not None:
+            for i in range(len(DB_Items)):
+                if square.Floor == DB_Items[i].ID:
+                    square.Floor = DB_Items[i]
+                else:
+                    square.Floor = None
+        f = Square(square.coords)
+        f.ID = square.ID
+        f.state = square.state
+        f.type = square.type
+        f.description = square.description
+        f.tier = square.tier
+        f.music = square.music
+        f.NPCs = square.NPC
+        f.Floor = square.Floor
+        DB_Squares.append(deepcopy(f))
+
+    # Logs
+    for log in DB_L:
+        logs_.append(log.entries)
+
+    # World
+    DB_W.Squares = []
+    for piece in DB_Squares:
+        DB_W.Squares.append(deepcopy(piece))
+    for i in range(len(DB_Squares)):
+        if DB_W.current_Square == DB_Squares[i].ID:
+            DB_W.current_Square = deepcopy(DB_Squares[i])
+    global World
+    World = World_(DB_W.current_Square)
+    World.Squares = deepcopy(DB_W.Squares)
+
+    # Everything
+    Everything.doneCombat = DB_E.doneCombat
+    Everything.foundItem = DB_E.foundItem
+    Everything.alive = DB_E.alive
+    Everything.trading = DB_E.trading
+    Everything.gambling = DB_E.gambling
+    Screen.config(state=NORMAL)
+    Screen.insert(INSERT, "\nGame loaded successfully!\n\n")
+    Screen.see("end")
+    Log.see("end")
+    Screen.config(state=DISABLED)
 
 
 def help_():
@@ -164,6 +272,12 @@ def start():
         Screen.insert(INSERT, World.current_Square.description)
         for element in logs_:
             Log.insert(INSERT, element)
+        Screen.config(state=NORMAL)
+        Screen.insert(INSERT, World.current_Square.description)
+        if World.current_Square.Floor is not None:
+            Screen.insert(INSERT, f"\n{World.current_Square.Floor.Name} is sitting on the floor...\n")
+        Screen.config(state=DISABLED)
+        Log.see("end")
 
 
 def clear_db():
@@ -179,8 +293,15 @@ def clear_db():
     it = session.query(Square).all()
     for x in it:
         session.delete(x)
-    logs.delete()
+    it = session.query(Everything_).all()
+    for x in it:
+        session.delete(x)
+    it = session.query(Enemy).all()
+    for x in it:
+        session.delete(x)
     session.commit()
+    conn = engine.connect()
+    conn.execute(logs.delete())
 
 
 def enter(event=None):
@@ -222,7 +343,7 @@ def enter(event=None):
                 logs_.append(f"You won\n{item.Name}\n\n")
             elif roll < Everything.roll:
                 stuff = []
-                for item in Player.inventory + Player. equipped:
+                for item in Player.inventory + Player.equipped:
                     stuff.append(item)
                 loss = choice(stuff)
                 if loss in Player.inventory:
@@ -335,7 +456,7 @@ def enter(event=None):
         x = World.current_Square.coords.split(",")[0]
         y = World.current_Square.coords.split(",")[1]
         if com == "w":
-            newSquare = f"{int(x) -1},{int(y)}"
+            newSquare = f"{int(x) - 1},{int(y)}"
         elif com == "n":
             newSquare = f"{int(x)},{int(y) + 1}"
         elif com == "e":
@@ -566,6 +687,7 @@ def combat():
             Player.combat = False
             World.current_Square.state = "clear"
             Log.insert(INSERT, f"you have slain\n{World.current_Square.NPCs.name}\n\n")
+            logs_.append(f"you have slain\n{World.current_Square.NPCs.name}\n\n")
             reward()
             World.current_Square.NPCs = None
         else:
@@ -580,6 +702,7 @@ def combat():
             Player.combat = False
             World.current_Square.state = "clear"
             Log.insert(INSERT, f"you have slain\n{World.current_Square.NPCs.name}\n\n")
+            logs_.append(f"you have slain\n{World.current_Square.NPCs.name}\n\n")
             reward()
             World.current_Square.NPCs = None
         else:
@@ -729,6 +852,7 @@ def inventory():
             Everything.inventory_uptodate = True
             Text_.see("end")
         inv_pop.after(500, update)
+
     inv_pop.after(1000, update)
 
 
@@ -767,6 +891,7 @@ def map_():
             Text_.config(state=DISABLED)
             Everything.map_uptodate = True
         Map_pop.after(500, update)
+
     Map_pop.after(1000, update)
 
 
@@ -789,6 +914,7 @@ def character():
             Text_.config(text=Player.pond())
             Everything.character_uptodate = True
         char_pop.after(500, update)
+
     char_pop.after(1000, update)
 
 
@@ -796,7 +922,6 @@ def save():
     # After long consideration, a save button
     # is way easier to do than just saving everything
     # real time and the exit button was redundant anyways
-
     if Player.ready is False:
         Screen.config(state=NORMAL)
         Screen.insert(INSERT, "\nDon't you wanna create a character first?\n")
@@ -804,11 +929,15 @@ def save():
         Screen.see("end")
         return None
 
-    # Database stuff
     clear_db()
+
+    # Database stuff
+    E_ = deepcopy(Everything)
     P_ = deepcopy(Player)
     W_ = deepcopy(World)
     I_ = deepcopy(Player.inventory + Player.equipped)
+    S_ = deepcopy(World.Squares)
+    Floor_Item = deepcopy(World.current_Square.Floor)
 
     # Player
     r = []
@@ -818,58 +947,58 @@ def save():
     z = deepcopy(r)
     P_.makestring()
     session.add(P_)
-    session.commit()
 
     # World
     x = W_.current_Square
+    if W_.current_Square.Floor is not None:
+        W_.current_Square.Floor = W_.current_Square.Floor.ID
+    W_.current_Square.ID2 = str(uuid1(2))
+    session.add(W_.current_Square)
     y = W_.Squares
     W_.makestring()
     session.add(W_)
-    session.commit()
 
     # Squares
-    for square in y:
-        if square.NPC is not None:
-            square.NPC = square.NPC.ID
+    floor_items = []
+    other_y = deepcopy(y)
+    for square in S_:
+        if square.NPCs is not None:
+            square.NPCs = square.NPCs.ID
         else:
-            square.NPC = "empty"
+            square.NPCs = "empty"
         if square.Floor is not None:
+            floor_items.append(deepcopy(square.Floor))
             square.Floor = square.Floor.ID
         else:
             square.Floor = "empty"
         session.add(square)
         square.NPC = x.NPC
         square.floor = x.Floor
-    session.commit()
 
     # Enemies
-    for square in y:
+    for square in other_y:
         if square.NPCs is not None:
             square.NPCs.extraUniqueID = str(uuid1(3))
             session.add(square.NPCs)
-    session.commit()
 
     # Items
-    if z:
+    if z or Floor_Item is not None:
         all_items = []
-        for square in y:
-            if square.Floor is not None and square.Floor != "empty":
-                all_items.append(square.Floor)
+        for item in floor_items:
+            all_items.append(item)
         for item in z:
             all_items.append(item)
         for item in all_items:
-            if type(item) != type("string"):
+            if not isinstance(item, str):
                 item.boni = str(item.boni)[1:-1]
                 session.add(item)
-        session.commit()
 
     # logs
     for item in logs_:
         session.execute(logs.insert().values(ID=str(uuid1()), entries=item))
-        session.commit()
 
     # Everything
-    session.add(Everything)
+    session.add(E_)
     session.commit()
     Screen.config(state=NORMAL)
     Screen.insert(INSERT, "\nGame saved!\n\n")
@@ -878,16 +1007,16 @@ def save():
 
 
 Input = Entry(root, text="Write a command...")
-Input.grid(row=4, column=1, columnspan=4, sticky=E+W+N, pady=10, padx=100)
+Input.grid(row=4, column=1, columnspan=4, sticky=E + W + N, pady=10, padx=100)
 Inventory = Button(root, text="Inventory", bg="#837373", fg="white", command=inventory, font=("Times", 12),
                    relief="solid", highlightbackground="darkgreen", highlightthickness="2")
-Inventory.grid(row=3, column=1, sticky=S+W+N, padx=100)
+Inventory.grid(row=3, column=1, sticky=S + W + N, padx=100)
 Map = Button(root, text="Map", command=map_, font=("Times", 12), relief="solid", fg="white", bg="#837373",
              highlightbackground="darkgreen", highlightthickness="2")
-Map.grid(row=3, column=2, sticky=S+W + N, padx=60)
+Map.grid(row=3, column=2, sticky=S + W + N, padx=60)
 Character_b = Button(root, text="Character", command=character, font=("Times", 12), relief="solid", fg="white",
                      bg="#837373", highlightbackground="darkgreen", highlightthickness="2")
-Character_b.grid(row=3, column=3, sticky=S+W, padx=100)
+Character_b.grid(row=3, column=3, sticky=S + W, padx=100)
 Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), height=15, width=40)
 if OS == "Windows":
     Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), wrap=WORD, height=15, width=50)
@@ -895,7 +1024,7 @@ if OS == "Windows":
 else:
     Screen = Text(root, bg="#d9d9d9", relief="flat", font=("Times", 12, "italic"), wrap=WORD, height=15, width=50)
     Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12), wrap=WORD)
-Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W+S, pady=40)
+Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W + S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
 Save = Button(root, text="Save", command=save, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
@@ -904,6 +1033,14 @@ Help = Button(root, text="Help", bg="#430C0C", fg="white", command=help_, font=(
               highlightbackground="black", highlightthickness="3")
 Help.grid(row=5, column=0, sticky=S)
 
+
+if not DB_player:
+    Current_Square = Square("0,0")
+    Current_Square.music = "start"
+    World = World_(Current_Square)
+else:
+    load()
+
 start()
 Input.bind("<Return>", enter)
 Screen.config(state=DISABLED)
@@ -911,11 +1048,6 @@ Log.config(state=DISABLED)
 
 Meta.create_all(engine)
 DB.metadata.create_all(engine)
-# y = session.query(Item).get(0)
-# print(y)
-# it = session.query(Item).all()
-# for x in it:
-#     session.delete(x)
-session.commit()
+# session.commit()  I sure hope commenting that out doesn't break stuff :/
 session.close()
 mainloop()
