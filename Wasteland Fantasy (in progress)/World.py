@@ -115,7 +115,7 @@ class Square(DB):
     description = Column(String)
     tier = Column(Integer)
     music = Column(String)
-    NPC = Column(String)
+    NPCs = Column(String)
     Floor = Column(String)
     ID2 = Column(String, primary_key=True)
 

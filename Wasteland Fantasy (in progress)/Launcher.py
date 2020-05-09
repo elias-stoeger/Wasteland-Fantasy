@@ -158,25 +158,26 @@ def load():
     Player.ready = DB_P.ready
     Player.busy = DB_P.busy
     Player.combat = DB_P.combat
-    print(Player.inventory)
-    print(loaded_inv)
-    print(DB_P.inventory)
 
     # Enemies
+    Enemy_Dict = {}
     DB_Enemies = []
     for enemy in DB_N:
         e = Enemy(enemy.tier)
         e.ID = enemy.ID
         e.name = enemy.name
         DB_Enemies.append(deepcopy(e))
+        Enemy_Dict[e.ID] = e
 
     # Squares
     DB_Squares = []
     for square in DB_S:
-        if square.NPC is not None:
-            for i in range(0, len(DB_Enemies)):
-                if square.NPC == DB_Enemies[i]:
-                    square.NPC = DB_Enemies[i]
+        if square.NPCs in Enemy_Dict:
+            square.NPCs = Enemy_Dict[square.NPCs]
+        else:
+            square.NPCs = None
+        if square.Floor == "empty":
+            square.Floor = None
         if square.Floor is not None:
             for i in range(len(DB_Items)):
                 if square.Floor == DB_Items[i].ID:
@@ -190,7 +191,7 @@ def load():
         f.description = square.description
         f.tier = square.tier
         f.music = square.music
-        f.NPCs = square.NPC
+        f.NPCs = square.NPCs
         f.Floor = square.Floor
         DB_Squares.append(deepcopy(f))
 
@@ -202,12 +203,12 @@ def load():
     DB_W.Squares = []
     for piece in DB_Squares:
         DB_W.Squares.append(deepcopy(piece))
-    for i in range(len(DB_Squares)):
-        if DB_W.current_Square == DB_Squares[i].ID:
-            DB_W.current_Square = deepcopy(DB_Squares[i])
+    for i in DB_Squares:
+        if DB_W.current_Square == i.ID:
+            DB_W.current_Square = deepcopy(i)
     global World
     World = World_(DB_W.current_Square)
-    World.Squares = deepcopy(DB_W.Squares)
+    World.Squares = DB_W.Squares
 
     # Everything
     Everything.doneCombat = DB_E.doneCombat
@@ -216,7 +217,6 @@ def load():
     Everything.trading = DB_E.trading
     Everything.gambling = DB_E.gambling
     Screen.config(state=NORMAL)
-    Screen.insert(INSERT, "\nGame loaded successfully!\n\n")
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
@@ -273,9 +273,20 @@ def start():
         for element in logs_:
             Log.insert(INSERT, element)
         Screen.config(state=NORMAL)
+        Screen.insert(INSERT, "You wake up from your nap...\n\n")
         Screen.insert(INSERT, World.current_Square.description)
         if World.current_Square.Floor is not None:
             Screen.insert(INSERT, f"\n{World.current_Square.Floor.Name} is sitting on the floor...\n")
+        if World.current_Square.state != "clear":
+            Screen.insert(INSERT, "\nThe enemy got bored of waiting and went away...\n")
+            Player.combat = False
+            Player.busy = False
+            World.current_Square.NPCs = None
+            World.current_Square.Floor = None
+        elif Everything.trading is True or Everything.gambling is True:
+            Screen.insert(INSERT, "\n The figure is gone...\nI guess they had better things to do than wait...\n")
+            Everything.trading = False
+            Everything.gambling = False
         Screen.config(state=DISABLED)
         Log.see("end")
 
@@ -647,6 +658,7 @@ def prep_square(last_square):
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")
         mixer_music.play(-1)
     Everything.map_uptodate = False
+    save()
 
 
 def enemy_turn():
@@ -922,6 +934,10 @@ def save():
     # After long consideration, a save button
     # is way easier to do than just saving everything
     # real time and the exit button was redundant anyways
+
+    # After even longer consideration, a save button is stupid,
+    # the game saves every time you move now
+
     if Player.ready is False:
         Screen.config(state=NORMAL)
         Screen.insert(INSERT, "\nDon't you wanna create a character first?\n")
@@ -952,6 +968,8 @@ def save():
     x = W_.current_Square
     if W_.current_Square.Floor is not None:
         W_.current_Square.Floor = W_.current_Square.Floor.ID
+    if W_.current_Square.NPCs is not None:
+        W_.current_Square.NPCs = W_.current_Square.NPCs.ID
     W_.current_Square.ID2 = str(uuid1(2))
     session.add(W_.current_Square)
     y = W_.Squares
@@ -960,9 +978,9 @@ def save():
 
     # Squares
     floor_items = []
-    other_y = deepcopy(y)
+    # other_y = deepcopy(y)
     for square in S_:
-        if square.NPCs is not None:
+        if square.NPCs is not None and not isinstance(square.NPCs, str):
             square.NPCs = square.NPCs.ID
         else:
             square.NPCs = "empty"
@@ -972,12 +990,12 @@ def save():
         else:
             square.Floor = "empty"
         session.add(square)
-        square.NPC = x.NPC
-        square.floor = x.Floor
+        # square.NPCs = x.NPCs
+        # square.floor = x.Floor
 
     # Enemies
-    for square in other_y:
-        if square.NPCs is not None:
+    for square in y:  # was other_y
+        if square.NPCs is not None and not isinstance(square.NPCs, str):
             square.NPCs.extraUniqueID = str(uuid1(3))
             session.add(square.NPCs)
 
@@ -1000,9 +1018,6 @@ def save():
     # Everything
     session.add(E_)
     session.commit()
-    Screen.config(state=NORMAL)
-    Screen.insert(INSERT, "\nGame saved!\n\n")
-    Screen.config(state=DISABLED)
     Screen.see("end")
 
 
@@ -1026,9 +1041,9 @@ else:
     Log = Text(root, bg="#d9d9d9", height=15, width=25, relief="ridge", font=("Times", 12), wrap=WORD)
 Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W + S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
-Save = Button(root, text="Save", command=save, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
+Close = Button(root, text="Close", command=root.destroy, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
-Save.grid(row=5, column=5, sticky=S)
+Close.grid(row=5, column=5, sticky=S)
 Help = Button(root, text="Help", bg="#430C0C", fg="white", command=help_, font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
 Help.grid(row=5, column=0, sticky=S)
