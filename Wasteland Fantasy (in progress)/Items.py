@@ -52,6 +52,12 @@ Items_tier2 = {"a Knfoon": [1, 0, 1],   # Knife + Fork + Spoon
 
 potion = {"a mysterious liquid": [0, 0, 0]}
 
+quests = {"a faded letter": "A letter... looks old, maybe I\nshould read it?...\n",
+          "a charred diary": "The charred remains of a book\nYou can decipher the word \"DIARY\"\non its front..\n",
+          "a humanoid-ish skull": "The skull of what most likely used\nto be a humanoid...\nOn the inside you see text\n",
+          "a talking book": "\"Hey big boy, wanna know a quest?\n",
+          "broken electronics": "There is a fruit on the back, maybe\nit was used to make food?\nThere is something scratched into\nthe glass part...\n"}
+
 Items_tier1_d = {"a sharp rock": "It's a rock with a pointy end\n~Would be even cooler on a stick...\n",
                  "most of a fork": "It is missing most of the spikes and\n~the hilt is bent. Still better than nothing...\n",
                  "grass armor": "Tufts of grass glued to what\n~used to be a shirt\n",
@@ -83,7 +89,7 @@ def get_item(tier):
 
 synonyms = {"a sharp rock": ["a sharp rock", "sharp rock", "rock", "the sharp rock"],
             "most of a fork": ["most of a fork", "fork", "Fork", "most of fork"],
-            "grass armor": ["grass armor", "Grass Armor", "a grass armor"],
+            "grass armor": ["grass armor", "Grass Armor", "a grass armor", "armor", "Armor"],
             "a beanie full of ants": ["a beanie full of ants", "beanie full of ants", "Beanie", "beanie", "a beanie"],
             "a few extra legs": ["a few extra legs", "extra legs", "legs", "few extra legs", "Legs"],
             "blinking sneakers": ["blinking sneakers", "sneakers", "Blinking Sneakers", "Sneakers"],

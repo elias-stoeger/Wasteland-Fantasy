@@ -27,6 +27,7 @@ from stat import S_IREAD, S_IWUSR
 
 # Play it on Linux for the prettiest experience
 
+chmod("Database.db", S_IWUSR | S_IREAD)
 engine = create_engine("sqlite:///Database.db", echo=False)
 if not database_exists("sqlite:///Database.db"):
     create_database("sqlite:///Database.db")
@@ -83,8 +84,10 @@ while foundS is False:
         with open(fileName, "w+") as file:
             test = file.read()
 
-
+# We don't want you falsifying your best scores :)
 chmod("scores.txt", S_IREAD)
+# I know it's not hard to get around it, it's more
+# of an discouragement...
 
 
 class Everything_(DB):
@@ -122,8 +125,11 @@ logs = Table(
     Column("entries", String),
 )
 
+chmod("Database.db", S_IREAD)
+
 
 def load():
+    chmod("Database.db", S_IWUSR | S_IREAD)
     DB_P = session.query(Player_).first()
     DB_W = session.query(World_).first()
     DB_L = engine.connect().execute(logs.select())
@@ -240,6 +246,7 @@ def load():
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
+    chmod("Database.db", S_IREAD)
 
 
 def help_():
@@ -313,6 +320,7 @@ def start():
 
 
 def clear_db():
+    chmod("Database.db", S_IREAD | S_IWUSR)
     it = session.query(Player_).all()
     for x in it:
         session.delete(x)
@@ -334,6 +342,7 @@ def clear_db():
     session.commit()
     conn = engine.connect()
     conn.execute(logs.delete())
+    chmod("Database.db", S_IREAD)
 
 
 def enter(event=None):
@@ -986,6 +995,8 @@ def save():
     # After even longer consideration, a save button is stupid,
     # the game saves every time you move now
 
+    chmod("Database.db", S_IWUSR | S_IREAD)
+
     if Player.ready is False:
         Screen.config(state=NORMAL)
         Screen.insert(INSERT, "\nDon't you wanna create a character first?\n")
@@ -994,6 +1005,8 @@ def save():
         return None
 
     clear_db()
+
+    chmod("Database.db", S_IREAD | S_IWUSR)
 
     # Database stuff
     E_ = deepcopy(Everything)
@@ -1064,6 +1077,8 @@ def save():
     session.commit()
     Screen.see("end")
 
+    chmod("Database.db", S_IREAD)
+
 
 Input = Entry(root, text="Write a command...")
 Input.grid(row=4, column=1, columnspan=4, sticky=E + W + N, pady=10, padx=100)
@@ -1104,7 +1119,6 @@ start()
 Input.bind("<Return>", enter)
 Screen.config(state=DISABLED)
 Log.config(state=DISABLED)
-
 Meta.create_all(engine)
 DB.metadata.create_all(engine)
 # session.commit()  I sure hope commenting that out doesn't break stuff :/
