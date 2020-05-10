@@ -23,7 +23,8 @@ def commands(command):
     use = r"^[u|U]se\s"
     unequip = r"^[u|U]nequip\s|^[t|T]ake\soff|^[l|L]oose"
     roll = r"^[r|R]oll"
-    save = r"^[s|S]ave$|[s|S]ave\s[g|G]ame$"
+    score = r"^[s|S]core$"
+    suicide = r"^[s|S]uicide$|^[k|K]ill\s[s|S]elf$"
     check = search(x, command)
     check_pond = search(pond, command)
     check_newt = search(info_newtfolk, command)
@@ -44,7 +45,8 @@ def commands(command):
     check_unequip = search(unequip, command)
     check_roll = search(roll, command)
     check_use = search(use, command)
-    check_save = search(save, command)
+    check_score = search(score, command)
+    check_suicide = search(suicide, command)
     if check:
         return move(check.group(0))
     elif check_pond:
@@ -101,8 +103,10 @@ def commands(command):
             return "unequip", command[8:]
     elif check_roll:
         return "roll"
-    elif check_save:
-        return "save"
+    elif check_score:
+        return "score"
+    elif check_suicide:
+        return "suicide"
     else:
         return "nothing"
 
@@ -169,10 +173,6 @@ def move(passed):
 
 
 def interact(x):
-    return "hi"
-
-
-def suicide(x):
     return "hi"
 
 

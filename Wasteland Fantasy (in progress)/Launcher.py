@@ -12,6 +12,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 from copy import deepcopy
+from os import chmod
+from stat import S_IREAD, S_IWUSR
 
 # All music is royalty free and from https://www.bensound.com/royalty-free-music
 # or the youtube channels https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
@@ -39,7 +41,7 @@ root.title("Wasteland Fantasy")
 root.grid_propagate(False)
 
 # since I usually work on Linux but it looks not quite the same
-# i change it a little depending on the OS
+# I change it a little depending on the OS
 OS = system()
 
 root.grid_columnconfigure(1, weight=3)
@@ -66,6 +68,24 @@ if OS == "Windows":
 
 # That's for getting rid of that nasty border of the window
 # root.overrideredirect(True)
+
+
+foundS = False
+while foundS is False:
+    fileName = "scores.txt"
+    try:
+        with open(fileName, "r") as file:
+            Score = file.read().split(",")
+            if Score == [""] or Score == []:
+                Score = None
+        foundS = True
+    except:
+        with open(fileName, "w+") as file:
+            test = file.read()
+
+
+chmod("scores.txt", S_IREAD)
+
 
 class Everything_(DB):
     __tablename__ = "Everything"
@@ -225,9 +245,9 @@ def load():
 def help_():
     help_pop = Toplevel()
     if OS == "Windows":
-        help_pop.geometry("400x340")
+        help_pop.geometry("400x370")
     else:
-        help_pop.geometry("400x300")
+        help_pop.geometry("400x330")
     help_pop.title("Help")
     Text_ = Label(help_pop, anchor=W, justify="left",
                   text="Here is how this game is played:\n\n"
@@ -239,6 +259,7 @@ def help_():
                        "The white line at the bottom is your command line\n"
                        "You can just type what you want to do but keep it crisp!\n"
                        "Something like \"hit the goblin\" or \"take the ring\" + Enter\n\n"
+                       "You can see your personal best by writing \"score\"\n\n"
                        "You move by giving your direction in cardinal directions:\n"
                        "\"go north\", \"go south\" and stuff like that.\n"
                        "I am sure you will figure the rest out yourself...\n"
@@ -258,7 +279,7 @@ def start():
         mixer.music.set_volume(0.4)
         Screen.insert(INSERT, "You wake up in a forest glade,\nthe morning sun blinding you,\n"
                               "the sounds of birds and critters around you.\n"
-                              "They are so loud your head hurts\n\"Am i hungover?\", you think..."
+                              "They are so loud your head hurts\n\"Am I hungover?\", you think..."
                               "\n\nSome water would do wonders.\n"
                               "You look around and spot a pond at the edge\nof the glade...\n")
 
@@ -325,8 +346,26 @@ def enter(event=None):
     coords = []
     if Everything.alive is False:
         clear_db()
+        chmod("scores.txt", S_IWUSR | S_IREAD)
+        if Score is not None:
+            if Player.level > int(Score[2]):
+                with open(fileName, "w+") as savedScores:
+                    savedScores.write(f"{Player.name},{Player.race},{Player.level},{int(Score[3]) + 1}")
+            else:
+                with open(fileName, "w+") as savedScores:
+                    savedScores.write(f"{Score[0]},{Score[1]},{Score[2]},{int(Score[3]) + 1}")
+        else:
+            with open(fileName, "w+") as savedScores:
+                savedScores.write(f"{Player.name},{Player.race},{Player.level},1")
         root.destroy()
+        chmod("scores.txt", S_IREAD)
         return None
+    elif com == "suicide":
+        Everything.alive = False
+        Screen.insert(INSERT, "\nYou decide to end it all...\n"
+                              "You take a shard of glass from the ground and...\n"
+                              "You commit Sudoku...")
+        save()
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
             Everything.roll = randint(1, 6)
@@ -371,6 +410,7 @@ def enter(event=None):
                 if Player.current_hp <= 0:
                     Everything.alive = False
                     Screen.insert(INSERT, "\nYou die a fools death...")
+                    save()
             Everything.gambling = False
             Everything.roll = None
             Everything.inventory_uptodate = False
@@ -571,8 +611,14 @@ def enter(event=None):
             Screen.insert(INSERT, f"You don't seem to be wearing {com[1]}\n")
         Everything.character_uptodate = False
         Everything.inventory_uptodate = False
-    elif com == "save":
-        save()
+    elif com == "score":
+        if Score is not None:
+            Screen.delete("0.1", END)
+            Screen.insert(INSERT, f"Best run:\n{Score[0]}, a vagabond of {Score[1]} descent...\n"
+                                  f"reached level {Score[2]}\n\n"
+                                  f"You lived and died a total of {Score[3]} times...\n\n")
+        else:
+            Screen.insert(INSERT, "\nNo scores saved...\n\n")
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
@@ -684,6 +730,7 @@ def enemy_turn():
     if Player.current_hp <= 0:
         Screen.insert(INSERT, "You succumb to your injuries...")
         Everything.alive = False
+        save()
 
 
 def combat():
@@ -749,6 +796,7 @@ def reward():
                               f"Where did {World.current_Square.NPCs.name} get {item.Name}???\n")
         World.current_Square.Floor = item
     Everything.character_uptodate = False
+    save()
 
 
 def gamble():
@@ -758,7 +806,7 @@ def gamble():
     if stuff:
         Everything.gambling = True
         Screen.insert(INSERT, f"\nShoddy figure:\n"
-                              f"Hey there, hero! Can i interest you in...\n"
+                              f"Hey there, hero! Can I interest you in...\n"
                               f"a little game?\n\n")
     else:
         Screen.insert(INSERT, "\nShoddy figure:\n"
@@ -965,7 +1013,6 @@ def save():
     session.add(P_)
 
     # World
-    x = W_.current_Square
     if W_.current_Square.Floor is not None:
         W_.current_Square.Floor = W_.current_Square.Floor.ID
     if W_.current_Square.NPCs is not None:
@@ -978,7 +1025,6 @@ def save():
 
     # Squares
     floor_items = []
-    # other_y = deepcopy(y)
     for square in S_:
         if square.NPCs is not None and not isinstance(square.NPCs, str):
             square.NPCs = square.NPCs.ID
@@ -990,11 +1036,9 @@ def save():
         else:
             square.Floor = "empty"
         session.add(square)
-        # square.NPCs = x.NPCs
-        # square.floor = x.Floor
 
     # Enemies
-    for square in y:  # was other_y
+    for square in y:
         if square.NPCs is not None and not isinstance(square.NPCs, str):
             square.NPCs.extraUniqueID = str(uuid1(3))
             session.add(square.NPCs)
@@ -1042,7 +1086,7 @@ else:
 Screen.grid(row=0, column=2, rowspan=3, columnspan=3, sticky=W + S, pady=40)
 Log.grid(row=0, column=1, rowspan=3, padx=60, pady=40, sticky=S)
 Close = Button(root, text="Close", command=root.destroy, bg="#430C0C", fg="white", font=("Times", 12), relief="solid",
-              highlightbackground="black", highlightthickness="3")
+               highlightbackground="black", highlightthickness="3")
 Close.grid(row=5, column=5, sticky=S)
 Help = Button(root, text="Help", bg="#430C0C", fg="white", command=help_, font=("Times", 12), relief="solid",
               highlightbackground="black", highlightthickness="3")
