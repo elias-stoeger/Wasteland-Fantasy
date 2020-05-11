@@ -15,11 +15,13 @@ class World_(DB):
     ID = Column(String, primary_key=True)
     Squares = Column(String)
     current_Square = Column(String)
+    Quests = Column(String)
 
     def __init__(self, current_square):
         self.ID = str(uuid1())
         self.Squares = []
         self.current_Square = current_square
+        self.Quests = []
         self.Squares.append(self.current_Square)
 
     def make_map(self):

@@ -32,6 +32,8 @@ class Item(DB):
     def get_types(self):
         if self.Name == list(potion.keys())[0]:
             return "potion"
+        elif self.Name in list(quests_item.keys()):
+            return "quest"
         else:
             return "gear"
 
@@ -52,11 +54,23 @@ Items_tier2 = {"a Knfoon": [1, 0, 1],   # Knife + Fork + Spoon
 
 potion = {"a mysterious liquid": [0, 0, 0]}
 
-quests = {"a faded letter": "A letter... looks old, maybe I\nshould read it?...\n",
-          "a charred diary": "The charred remains of a book\nYou can decipher the word \"DIARY\"\non its front..\n",
-          "a humanoid-ish skull": "The skull of what most likely used\nto be a humanoid...\nOn the inside you see text\n",
-          "a talking book": "\"Hey big boy, wanna know a quest?\n",
-          "broken electronics": "There is a fruit on the back, maybe\nit was used to make food?\nThere is something scratched into\nthe glass part...\n"}
+quests_item = {"a faded letter": [0, 0, 0],
+               "a charred diary": [0, 0, 0],
+               "a humanoid-ish skull": [0, 0, 0],
+               "a talking book": [0, 0, 0],
+               "broken electronics": [0, 0, 0]}
+
+quests_d = {"a faded letter": "A letter... looks old, maybe I\nshould read it?...\n",
+            "a charred diary": "The charred remains of a book\nYou can decipher the word \"DIARY\"\non its front..\n",
+            "a humanoid-ish skull": "The skull of what most likely used\nto be a humanoid...\nOn the inside you see text\n",
+            "a talking book": "\"Hey big boy, wanna know a quest?\n",
+            "broken electronics": "There is a fruit on the back, maybe\nit was used to make food?\nThere is something scratched into\nthe glass part...\n"}
+
+quests = ["\nIt's hard to read...\nSomething about a hidden stash...\nYou mark the place mentioned on your map\n\n",
+          "\n\"Note to self: Hide treasure under\nthe fancy stone, make sure noone\nfinds out about it!\"\n"
+          "You mark the place on your map\n\n",
+          "\nIt looks like a classic treasure map\ndots and a cross and all...\nYou compare it to your map...\n"
+          "Yeah, that checks out! You mark the place\non your map\n\n"]
 
 Items_tier1_d = {"a sharp rock": "It's a rock with a pointy end\n~Would be even cooler on a stick...\n",
                  "most of a fork": "It is missing most of the spikes and\n~the hilt is bent. Still better than nothing...\n",
@@ -72,11 +86,11 @@ Items_tier2_d = {"a Knfoon": "A knife, a fork and a spoon all in one?\n~Sign me 
                  "sandpaper glove": "Put the smooth side your way and the\n~rough one the enemies...\n",
                  "rollerskating gear": "May not look the coolest but it\nprovides some protection.\n~Even when not skating!\n"}
 
-potion_d = {"a mysterious liquid": "Could be good, could be bad...\n~Only one way to find out ¯\_(ツ)_/¯\n"}
+potion_d = {"a mysterious liquid": "Could be good, could be bad...\n~Only one way to find out ¯\\_(ツ)_/¯\n"}
 
-items1 = list(Items_tier1.items()) + list(potion.items())
-items2 = list(Items_tier2.items()) + list(potion.items())
-descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(potion_d.items())
+items1 = list(Items_tier1.items()) + list(potion.items()) + list(quests_item.items())
+items2 = list(Items_tier2.items()) + list(potion.items()) + list(quests_item.items())
+descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(potion_d.items()) + list(quests_d.items())
 
 
 def get_item(tier):
@@ -99,6 +113,11 @@ synonyms = {"a sharp rock": ["a sharp rock", "sharp rock", "rock", "the sharp ro
             "fluffy mittens": ["fluffy mittens", "Fluffy mittens", "Fluffy Mittens", "fluffy Mittens", "mittens", "Mittens"],
             "sandpaper glove": ["sandpaper glove", "Sandpaper glove", "Sandpaper Glove", "sandpaper", "glove"],
             "rollerskating gear": ["rollerskating gear", "skating gear", "gear", "Gear"],
-            "a mysterious liquid": ["a mysterious liquid", "potion", "Potion", "liquid", "Liquid", "mysterious liquid"]}
+            "a mysterious liquid": ["a mysterious liquid", "potion", "Potion", "liquid", "Liquid", "mysterious liquid"],
+            "a faded letter": ["letter", "Letter", "faded letter", "Faded letter", "Faded Letter", "a faded letter", "the letter"],
+            "a charred diary": ["charred diary", "a charred diary", "Charred diary", "Charred Diary", "diary", "Diary", "the diary"],
+            "a humanoid-ish skull": ["a humanoid-ish skull", "humanoid-ish skull", "Skull", "skull", "Humanoid-ish skull"],
+            "a talking book": ["a talking book", "talking book", "book", "Book", "Talking book", "the talking book"],
+            "broken electronics": ["broken electronics", "Broken electronics", "Broken Electronics", "electronics", "Electronics"]}
 
 DB.metadata.create_all(engine)

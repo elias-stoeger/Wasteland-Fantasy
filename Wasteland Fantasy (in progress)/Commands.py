@@ -172,7 +172,7 @@ def move(passed):
         return "s"
 
 
-def interact(x):
+def interact():
     return "hi"
 
 
