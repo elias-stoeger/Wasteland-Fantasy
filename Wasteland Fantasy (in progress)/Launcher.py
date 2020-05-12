@@ -87,7 +87,7 @@ while foundS is False:
 # We don't want you falsifying your best scores :)
 chmod("scores.txt", S_IREAD)
 # I know it's not hard to get around it, it's more
-# of an discouragement...
+# of a discouragement...
 
 
 class Everything_(DB):
@@ -369,15 +369,27 @@ def enter(event=None):
         else:
             with open(fileName, "w+") as savedScores:
                 savedScores.write(f"{Player.name},{Player.race},{Player.level},1")
-        root.destroy()
+        Screen.delete("1.0", END)
+        Everything.alive = True
+        for entry in logs_:
+            logs_.remove(entry)
+        Log.delete("1.0", END)
+        Player.inventory = []
+        Player.equipped = []
+        Player.ready = False
+        World.current_Square = Square("0,0")
+        World.Squares = [World.current_Square]
+        World.Quests = []
+        Everything.inventory_uptodate = False
+        Everything.map_uptodate = False
+        Everything.character_uptodate = False
+        start()
         chmod("scores.txt", S_IREAD)
-        return None
     elif com == "suicide":
         Everything.alive = False
         Screen.insert(INSERT, "\nYou decide to end it all...\n"
                               "You take a shard of glass from the ground and...\n"
                               "You commit Sudoku...")
-        save()
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
             Everything.roll = randint(1, 6)
@@ -411,6 +423,7 @@ def enter(event=None):
                 if loss in Player.inventory:
                     Player.inventory.remove(loss)
                 else:
+                    loose_stats(loss.boni)
                     Player.equipped.remove(loss)
                 Screen.insert(INSERT, f"Harharhar.. your {loss.Name}\nwill look good in my collection..\n")
                 Log.insert(INSERT, f"You lost {loss.Name}\nto a gambler...\n\n")
@@ -904,9 +917,9 @@ def intro_combat():
 def intro_items():
     help_pop = Toplevel()
     if OS == "Windows":
-        help_pop.geometry("350x300")
+        help_pop.geometry("350x340")
     else:
-        help_pop.geometry("350x258")
+        help_pop.geometry("350x308")
     help_pop.title("Items")
     Text_ = Label(help_pop, anchor=W, justify="left",
                   text="Hey there, champ!\n"
@@ -914,7 +927,10 @@ def intro_items():
                        "I may know a thing or two about those..\n"
                        "Want me to tell you?\n"
                        "\nNo? Well, it's not your decision anyways:\n"
-                       "There are two kinds of items, gear and potions\n"
+                       "There are three kinds of items, quests, gear and\n"
+                       "potions. You can read quests to get marks on your\n"
+                       "map. If you are in a marked square you can look for\n"
+                       "stuff and see what you find :)\n"
                        "You can equip gear to get some boni to your stats\n"
                        "damage, defense and evasion but only two at a time\n"
                        "\nThen there are potions, they are tricky:\n"
@@ -949,7 +965,10 @@ def inventory():
         if Everything.inventory_uptodate is False:
             Text_.config(state=NORMAL)
             Text_.delete("1.0", END)
-            Text_.insert(INSERT, Player.get_inventory())
+            if Player.get_inventory():
+                Text_.insert(INSERT, Player.get_inventory())
+            else:
+                Text_.insert(INSERT, "Nothing in here yet...")
             Text_.config(state=DISABLED)
             Everything.inventory_uptodate = True
             Text_.see("end")
@@ -1012,7 +1031,9 @@ def character():
         Text_.config(font=("Times", 12))
 
     def update():
-        if Everything.character_uptodate is False:
+        if Player.ready is False:
+            Text_.config(text="All so blurry...\nWho.. am I?...\nI need some water...")
+        elif Everything.character_uptodate is False:
             Text_.config(text=Player.pond())
             Everything.character_uptodate = True
         char_pop.after(500, update)
