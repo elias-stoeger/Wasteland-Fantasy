@@ -236,6 +236,8 @@ def load():
     World.Quests = DB_W.Quests.split(";")
     if World.Quests == ['']:
         World.Quests = []
+    if "" in World.Quests:
+        World.Quests.remove("")
 
     # Everything
     Everything.doneCombat = DB_E.doneCombat
@@ -652,6 +654,8 @@ def enter(event=None):
             item = get_item(Player.level // 3 + 1)
             Screen.insert(INSERT, f"\nYou look around and... OH! What's that?\nYou find {item.Name}!\nYou put it in your backpack.\n\n")
             Player.inventory.append(item)
+            Log.insert(INSERT, f"You found\n{item.Name}")
+            logs_.append(f"You found\n{item.Name}")
             World.Quests.remove(World.current_Square.coords)
             Everything.map_uptodate = False
             Everything.inventory_uptodate = False
@@ -1150,6 +1154,6 @@ Screen.config(state=DISABLED)
 Log.config(state=DISABLED)
 Meta.create_all(engine)
 DB.metadata.create_all(engine)
-# session.commit()  I sure hope commenting that out doesn't break stuff :/
+chmod("Database.db", S_IREAD)
 session.close()
 mainloop()
