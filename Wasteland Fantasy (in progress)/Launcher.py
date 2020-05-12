@@ -125,8 +125,6 @@ logs = Table(
     Column("entries", String),
 )
 
-chmod("Database.db", S_IREAD)
-
 
 def load():
     chmod("Database.db", S_IWUSR | S_IREAD)
@@ -235,6 +233,9 @@ def load():
     global World
     World = World_(DB_W.current_Square)
     World.Squares = DB_W.Squares
+    World.Quests = DB_W.Quests.split(";")
+    if World.Quests == ['']:
+        World.Quests = []
 
     # Everything
     Everything.doneCombat = DB_E.doneCombat
@@ -580,7 +581,7 @@ def enter(event=None):
             equipped.append(item)
         if len(equipped) > 1:
             Screen.insert(INSERT, "You can't equip more items, unequip some first...\n")
-        elif com[1] not in synonyms["a mysterious liquid"]:
+        elif com[1] not in synonyms["a mysterious liquid"] + synonyms["a faded letter"] + synonyms["a charred diary"] + synonyms["a humanoid-ish skull"] + synonyms["a talking book"] + synonyms["broken electronics"]:
             for item in Player.inventory:
                 if com[1] == item.Name:
                     Player.equipped.append(item)
@@ -628,6 +629,34 @@ def enter(event=None):
                                   f"You lived and died a total of {Score[3]} times...\n\n")
         else:
             Screen.insert(INSERT, "\nNo scores saved...\n\n")
+    elif com == "read_w":
+        Screen.insert(INSERT, "\nYou start to read your hand\nyou read your tea leaves\nyou read in the essence of time...\n"
+                              "How about you tell me what exactly you\nwant to read....\n\n")
+    elif com[0] == "read":
+        found = False
+        for item in Player.inventory:
+            if com[1] == item.Name and com[1] in list(quests_item.keys()):
+                Player.inventory.remove(item)
+                Screen.insert(INSERT, choice(quests))
+                x = World.current_Square.coords.split(",")[0]
+                y = World.current_Square.coords.split(",")[1]
+                QuestSquare = f"{int(x) + randint(-15, 15)},{int(y) + randint(-15, 15)}"
+                World.Quests.append(QuestSquare)
+                found = True
+                Everything.inventory_uptodate = False
+                Everything.map_uptodate = False
+        if found is False:
+            Screen.insert(INSERT, f"\nYou can't read {com[1]}\n\n")
+    elif com == "look":
+        if World.current_Square.coords in World.Quests:
+            item = get_item(Player.level // 3 + 1)
+            Screen.insert(INSERT, f"\nYou look around and... OH! What's that?\nYou find {item.Name}!\nYou put it in your backpack.\n\n")
+            Player.inventory.append(item)
+            World.Quests.remove(World.current_Square.coords)
+            Everything.map_uptodate = False
+            Everything.inventory_uptodate = False
+        else:
+            Screen.insert(INSERT, "\nYou look around and see...\nSome corpses..\nA few sludge pools..\nMost of what used to be a car..\nNothing of value to loot\n\n")
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)

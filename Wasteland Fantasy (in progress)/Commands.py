@@ -25,6 +25,9 @@ def commands(command):
     roll = r"^[r|R]oll"
     score = r"^[s|S]core$"
     suicide = r"^[s|S]uicide$|^[k|K]ill\s[s|S]elf$"
+    read_w = r"^[r|R]ead$"
+    read = r"^[r|R]ead\s"
+    look = r"^[s|S]earch|^[l|L]ook\sfor|^[c|C]heck\sfor|^[i|I]nspect|^[c|C]heck|^[l|L]ook"
     check = search(x, command)
     check_pond = search(pond, command)
     check_newt = search(info_newtfolk, command)
@@ -47,6 +50,9 @@ def commands(command):
     check_use = search(use, command)
     check_score = search(score, command)
     check_suicide = search(suicide, command)
+    check_read = search(read, command)
+    check_read_w = search(read_w, command)
+    check_look = search(look, command)
     if check:
         return move(check.group(0))
     elif check_pond:
@@ -107,6 +113,16 @@ def commands(command):
         return "score"
     elif check_suicide:
         return "suicide"
+    elif check_read_w:
+        return "read_w"
+    elif check_read:
+        x = item_synonyms(command[5:])
+        if x:
+            return "read", x
+        else:
+            return "read", command[5:]
+    elif check_look:
+        return "look"
     else:
         return "nothing"
 

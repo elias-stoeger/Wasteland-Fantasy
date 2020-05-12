@@ -37,6 +37,10 @@ class World_(DB):
             x = str(x).split(",")
             xcoords.append(int(x[0]))
             ycoords.append(int(x[1]))
+        for quest in self.Quests:
+            q = quest.split(",")
+            xcoords.append(int(q[0]))
+            ycoords.append(int(q[1]))
         if max(ycoords) <= 8:
             for x in range(8, max(ycoords), -1):
                 Map.append("\n")
@@ -70,6 +74,11 @@ class World_(DB):
                 checker = f"{j},{i}"
                 if checker == self.current_Square.coords:
                     Map.append("†웃")
+                elif checker in self.Quests:
+                    if OS == "Windows":
+                        Map.append("XX")
+                    else:
+                        Map.append(" X ")
                 elif checker in allcoords:
                     Map.append("░░")
                 else:
@@ -106,6 +115,10 @@ class World_(DB):
         for square in self.Squares:
             World_sq += str(square.ID + ",")
         self.Squares = World_sq
+        quests = ""
+        for quest in self.Quests:
+            quests += str(quest + ";")
+        self.Quests = quests
 
 
 class Square(DB):

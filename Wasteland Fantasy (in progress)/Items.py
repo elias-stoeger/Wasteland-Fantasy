@@ -60,11 +60,11 @@ quests_item = {"a faded letter": [0, 0, 0],
                "a talking book": [0, 0, 0],
                "broken electronics": [0, 0, 0]}
 
-quests_d = {"a faded letter": "A letter... looks old, maybe I\nshould read it?...\n",
-            "a charred diary": "The charred remains of a book\nYou can decipher the word \"DIARY\"\non its front..\n",
-            "a humanoid-ish skull": "The skull of what most likely used\nto be a humanoid...\nOn the inside you see text\n",
+quests_d = {"a faded letter": "A letter... looks old, maybe I\n~should read it?...\n",
+            "a charred diary": "The charred remains of a book\n~You can decipher the word \"DIARY\"\n~on its front..\n",
+            "a humanoid-ish skull": "The skull of what most likely used\n~to be a humanoid...\n~On the inside you see text\n",
             "a talking book": "\"Hey big boy, wanna know a quest?\n",
-            "broken electronics": "There is a fruit on the back, maybe\nit was used to make food?\nThere is something scratched into\nthe glass part...\n"}
+            "broken electronics": "There is a fruit on the back, maybe\n~it was used to make food?\n~There is something scratched into\n~the glass part...\n"}
 
 quests = ["\nIt's hard to read...\nSomething about a hidden stash...\nYou mark the place mentioned on your map\n\n",
           "\n\"Note to self: Hide treasure under\nthe fancy stone, make sure noone\nfinds out about it!\"\n"
