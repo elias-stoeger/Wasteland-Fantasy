@@ -42,52 +42,29 @@ class World_(DB):
             xcoords.append(int(q[0]))
             ycoords.append(int(q[1]))
         if max(ycoords) <= 8:
-            for x in range(8, max(ycoords), -1):
-                Map.append("\n")
+            ycoords.append(8)
+        if min(ycoords) >= -8:
+            ycoords.append(-8)
+        if max(xcoords) <= 8:
+            xcoords.append(7)
+        if min(xcoords) >= -8:
+            xcoords.append(-7)
         # There's a weird thing where the map stickman goes out
         # of bound if you reach the edge so i append something
         # to keep him in
         for i in range(max(ycoords), int(min(ycoords))-1, -1):
-            if max(xcoords) > 13:
-                if OS == "Windows":
-                    Map.append(" ↟")
-                else:
-                    Map.append("    ↟")
-            elif min(xcoords) < -13:
-                if OS == "Windows":
-                    Map.append(" ↟")
-                else:
-                    Map.append("    ↟")
-            if max(xcoords) > 14:
-                for x in range(max(xcoords), 13, -1):
-                    if OS == "Windows":
-                        Map.append("  ")
-                    else:
-                        Map.append("       ")
-            if min(xcoords) < -14:
-                for x in range(min(xcoords), -13, 1):
-                    if OS == "Windows":
-                        Map.append("  ")
-                    else:
-                        Map.append("       ")
             for j in range(min(xcoords), max(xcoords)+1):
                 checker = f"{j},{i}"
                 if checker == self.current_Square.coords:
-                    Map.append("†웃")
+                    Map.append("웃")
                 elif checker in self.Quests:
-                    if OS == "Windows":
-                        Map.append("XX")
-                    else:
-                        Map.append(" X ")
+                    Map.append("XX")
                 elif checker in allcoords:
                     Map.append("░░")
                 else:
                     # make a nice little forrest that happens to be
                     # the exact same size as all squares (͡ ° ͜ʖ ͡ °)
-                    if OS == "Windows":
-                        Map.append(choice(["↟ ", "↟ ", " ↟", "↟↟", " ."]))
-                    else:
-                        Map.append(choice([" ↟ ", "↟  ", "  ↟"]))
+                    Map.append(choice(["↟ ", " ↟", "҂↟", "  ", "͡ ", " ͡"]))      # ҂ ҇ ͡
             if max(xcoords) > 13:
                 Map.append(" ")
             elif min(xcoords) < -13:

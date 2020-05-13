@@ -88,8 +88,9 @@ Items_tier2_d = {"a Knfoon": "A knife, a fork and a spoon all in one?\n~Sign me 
 
 potion_d = {"a mysterious liquid": "Could be good, could be bad...\n~Only one way to find out ¯\\_(ツ)_/¯\n"}
 
-items1 = list(Items_tier1.items()) + list(potion.items()) + list(quests_item.items())
-items2 = list(Items_tier2.items()) + list(potion.items()) + list(quests_item.items())
+# Potions are added multiple times to increase the drop chance since they are pretty essential
+items1 = list(Items_tier1.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
+items2 = list(Items_tier2.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
 descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(potion_d.items()) + list(quests_d.items())
 
 

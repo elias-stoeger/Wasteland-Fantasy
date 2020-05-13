@@ -383,6 +383,7 @@ def enter(event=None):
         Everything.inventory_uptodate = False
         Everything.map_uptodate = False
         Everything.character_uptodate = False
+        World.current_Square.music = "start"
         start()
         chmod("scores.txt", S_IREAD)
     elif com == "suicide":
@@ -464,7 +465,7 @@ def enter(event=None):
                     if Player.equipped[found] == Everything.Trade[1]:
                         Player.equipped.remove(Player.equipped[found])
                         Player.inventory.append(Everything.Trade[0])
-                        Player.current_hp -= Player.current_hp // 2
+                        Player.current_hp -= Player.current_hp // 4
                         Everything.trading = False
                         found = -1
                     else:
@@ -879,7 +880,7 @@ def trade():
                               f"\"Hey handsome, can I interest you in...\n"
                               f"a little deal?...\n"
                               f"I am willing to give you {offer.Name} but you have to give\n"
-                              f"me {price.Name}.. and also...\n{Player.current_hp // 2} health points.\n"
+                              f"me {price.Name}.. and also...\n{Player.current_hp // 4} health points.\n"
                               f"What do you say?\"\n")
         Everything.trading = True
         return offer, price
@@ -917,7 +918,7 @@ def intro_combat():
 def intro_items():
     help_pop = Toplevel()
     if OS == "Windows":
-        help_pop.geometry("350x340")
+        help_pop.geometry("350x350")
     else:
         help_pop.geometry("350x308")
     help_pop.title("Items")
@@ -987,33 +988,33 @@ def map_():
     xscroll = Scrollbar(Map_pop, orient="horizontal")
     yscroll.pack(side=RIGHT, fill=Y)
     xscroll.pack(side=BOTTOM, fill=X)
-    if OS == "Windows":
-        Text_ = Text(Map_pop, bg="#CABB92", fg="black", relief="flat", highlightbackground="#CABB92",
-                     font=("DejaVu Sans Mono", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
-    else:
-        Text_ = Text(Map_pop, bg="#CABB92", fg="black", relief="flat", highlightbackground="#CABB92",
-                     font=("Times", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
+    Text_ = Text(Map_pop, bg="#CABB92", fg="black", relief="flat", highlightbackground="#CABB92",
+                 font=("DejaVu Sans Mono", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
     Text_.tag_configure("center", justify='center')
     Text_.insert("1.0", m)
-    Text_.tag_add("center", "1.0", "end")
-    Text_.pack(expand=True)
+    Text_.pack(expand=False)
     yscroll.config(command=Text_.yview)
     xscroll.config(command=Text_.xview)
     Text_.config(state=DISABLED)
-    Everything.map_uptodate = True
 
     def update():
         if Everything.map_uptodate is False:
+            scrollposx = Text_.xview()
+            scrollposy = Text_.yview()
+            scrollposx = str(scrollposx)[1:-1].split(", ")
+            scrollposy = str(scrollposy)[1:-1].split(", ")
             Text_.config(state=NORMAL)
             x = World.make_map()
             Text_.delete("1.0", END)
             Text_.insert("1.0", x)
-            Text_.tag_add("center", "1.0", "end")
+            # the code below is for keeping the map
+            # focus to where you scrolled it
+            Text_.yview_moveto(float(scrollposy[0]))
+            Text_.xview_moveto(float(scrollposx[0]))
             Text_.config(state=DISABLED)
             Everything.map_uptodate = True
         Map_pop.after(500, update)
-
-    Map_pop.after(1000, update)
+    Map_pop.after(100, update)
 
 
 def character():
