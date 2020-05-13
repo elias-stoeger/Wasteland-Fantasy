@@ -46,9 +46,9 @@ class World_(DB):
         if min(ycoords) >= -8:
             ycoords.append(-8)
         if max(xcoords) <= 8:
-            xcoords.append(7)
+            xcoords.append(8)
         if min(xcoords) >= -8:
-            xcoords.append(-7)
+            xcoords.append(-8)
         # There's a weird thing where the map stickman goes out
         # of bound if you reach the edge so i append something
         # to keep him in
