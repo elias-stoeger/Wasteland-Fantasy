@@ -3,7 +3,7 @@ from Items import synonyms
 
 
 def commands(command):
-    x = r"[w|W]est$|[n|N]orth$|[s|S]outh$|[e|E]ast$"
+    x = r"[w|W]est$|[n|N]orth$|[s|S]outh$|[e|E]ast$|^[e|E]$|^[s|S]$|^[w|W]$|^[n|N]$"
     pond = r"[p|P]ond$|[w|W]ater$"
     info_newtfolk = r"[i|I]nfo\s[n|N]ewtfolk"
     info_bathy = r"[i|I]nfo\s[b|B]athynomic"
@@ -178,18 +178,14 @@ def infos(race):
 
 def move(passed):
     passed = str(passed)
-    if passed == "West" or passed == "west":
+    if passed in ["West", "west", "w", "W"]:
         return "w"
-    elif passed == "North" or passed == "north":
+    elif passed in ["North", "north", "n", "N"]:
         return "n"
-    elif passed == "East" or passed == "east":
+    elif passed in ["East", "east", "e", "E"]:
         return "e"
     else:
         return "s"
-
-
-def interact():
-    return "hi"
 
 
 def item_synonyms(b):
