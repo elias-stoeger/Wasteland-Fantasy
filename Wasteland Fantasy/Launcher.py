@@ -397,8 +397,6 @@ def enter(event=None):
                                   "You commit Sudoku...")
         else:
             Screen.insert(INSERT, "\nYou don't even know who you are yet, chill...\n")
-    elif com == "nothing":
-        Screen.insert(INSERT, f"\nYou don't know how to {x}...\n")
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
             Everything.roll = randint(1, 6)
@@ -684,6 +682,8 @@ def enter(event=None):
             Everything.inventory_uptodate = False
         else:
             Screen.insert(INSERT, "\nYou look around and see...\nSome corpses..\nA few sludge pools..\nMost of what used to be a car..\nNothing of value to loot\n\n")
+    elif com == "nothing":
+        Screen.insert(INSERT, f"\nYou don't know how to {x}...\n")
     Screen.see("end")
     Log.see("end")
     Screen.config(state=DISABLED)
