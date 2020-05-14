@@ -22,7 +22,7 @@ class Enemy(DB):
         self.ID = str(uuid1())
         self.tier = tier
         self.name = self.enemy()
-        self.hp = choice([tier + 1, tier + 2, tier + 3])
+        self.hp = choice([tier + 1, tier + 2, tier + 3, tier * 2 + 1, tier * 2 + 1])
         self.dmg = choice([tier + 1, tier + 2])
         self.extraUniqueID = str(uuid1(2))
 

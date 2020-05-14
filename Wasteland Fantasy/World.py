@@ -64,7 +64,7 @@ class World_(DB):
                 else:
                     # make a nice little forrest that happens to be
                     # the exact same size as all squares (͡ ° ͜ʖ ͡ °)
-                    Map.append(choice(["↟ ", " ↟", "҂↟", "  ", "͡ ", " ͡"]))      # ҂ ҇ ͡
+                    Map.append(choice(["↟ ", " ↟", "҂↟", "  "]))      # ҂ ҇ ͡
             if max(xcoords) > 13:
                 Map.append(" ")
             elif min(xcoords) < -13:

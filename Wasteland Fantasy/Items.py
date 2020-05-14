@@ -131,11 +131,11 @@ Items_tier5_d = {"Durandal": "The mythical blade of\n~Roland of Charlemagne\n~sa
 potion_d = {"a mysterious liquid": "Could be good, could be bad...\n~Only one way to find out ¯\\_(ツ)_/¯\n"}
 
 # Potions are added multiple times to increase the drop chance since they are pretty essential
-items1 = list(Items_tier1.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items()) + list(potion.items())
-items2 = list(Items_tier2.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items()) + list(potion.items())
-items3 = list(Items_tier3.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items()) + list(potion.items())
-items4 = list(Items_tier4.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items()) + list(potion.items())
-items5 = list(Items_tier5.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items()) + list(potion.items())
+items1 = list(Items_tier1.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items())
+items2 = list(Items_tier2.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items())
+items3 = list(Items_tier3.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items())
+items4 = list(Items_tier4.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items())
+items5 = list(Items_tier5.items()) + list(potion.items()) + list(quests_item.items()) + list(potion.items())
 descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(Items_tier3_d.items()) + list(Items_tier4_d.items()) + list(Items_tier5_d.items()) + list(potion_d.items()) + list(quests_d.items())
 
 
