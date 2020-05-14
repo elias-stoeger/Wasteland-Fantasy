@@ -16,11 +16,14 @@ from os import chmod
 from stat import S_IREAD, S_IWUSR
 
 # All music is royalty free and from https://www.bensound.com/royalty-free-music
-# or the youtube channels https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
 # Ocean by Hazy
 # https://soundcloud.com/hazy_music
 # Music provided by https://www.plugnplaymusic.net
+# --------------------------------------------------------
+# or the youtube channels
+# https://www.youtube.com/channel/UCNg336DNlXPJ4mNML9J292w
 # https://www.youtube.com/channel/UCcavSftXHgxLBWwLDm_bNvA
+# https://www.youtube.com/channel/UCJS15kO-_Ns3f_sGLHwzYFg
 
 # The main background is from https://www.deviantart.com/marylise
 # also free for use
@@ -387,10 +390,15 @@ def enter(event=None):
         start()
         chmod("scores.txt", S_IREAD)
     elif com == "suicide":
-        Everything.alive = False
-        Screen.insert(INSERT, "\nYou decide to end it all...\n"
-                              "You take a shard of glass from the ground and...\n"
-                              "You commit Sudoku...")
+        if Player.ready is True:
+            Everything.alive = False
+            Screen.insert(INSERT, "\nYou decide to end it all...\n"
+                                  "You take a shard of glass from the ground and...\n"
+                                  "You commit Sudoku...")
+        else:
+            Screen.insert(INSERT, "\nYou don't even know who you are yet, chill...\n")
+    elif com == "nothing":
+        Screen.insert(INSERT, f"\nYou don't know how to {x}...\n")
     elif Everything.gambling:
         if x in ["yes", "Yes"] and Everything.roll is None:
             Everything.roll = randint(1, 6)
@@ -483,8 +491,9 @@ def enter(event=None):
                               "\"pond\" will start the character creation\n"
                               "\"attack\" makes you attack an enemy\n"
                               "\"north\", \"east\", \"south\" and \"west\" make you\n"
-                              "go that direction\n\n"
+                              "go that direction\n"
                               "\"take\" for picking up stuff\n"
+                              "\"read ITEM\" for reading texts and books\n"
                               "\"equip ITEM\" to equip items\n"
                               "\"unequip ITEM\" to, well, unequip items\n"
                               "\"drink ITEM\" to drink items that are potions\n"

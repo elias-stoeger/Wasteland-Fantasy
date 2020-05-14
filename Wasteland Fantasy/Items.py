@@ -52,6 +52,27 @@ Items_tier2 = {"a Knfoon": [1, 0, 1],   # Knife + Fork + Spoon
                "sandpaper glove": [1, 1, 0],
                "rollerskating gear": [0, 1, 1]}
 
+Items_tier3 = {"the weebs katana": [2, 0, 1],
+               "a potato peeler": [3, 0, 0],
+               "an ants-infested anorak": [0, 2, 1],
+               "a porcupine-fur west": [1, 2, 0],
+               "roller skates": [1, 0, 2],
+               "mum-made woolen socks": [0, 1, 2]}
+
+Items_tier4 = {"a kinky whip": [3, 0, 1],
+               "a Dreihänder": [3, 1, 0],
+               "an ants-crawling fursuit": [1, 3, 0],
+               "a stinky bucket": [0, 3, 1],
+               "grannies woolen sweater": [0, 2, 2],
+               "inline skates": [1, 0, 3]}
+
+Items_tier5 = {"Durandal": [5, 0, 0],
+               "a Totschläger": [4, 1, 0],
+               "a templars helmet": [1, 4, 0],
+               "a full ant-armor": [1, 3, 1],
+               "Heelys": [1, 1, 3],
+               "boots full of lube": [0, 2, 3]}
+
 potion = {"a mysterious liquid": [0, 0, 0]}
 
 quests_item = {"a faded letter": [0, 0, 0],
@@ -86,19 +107,49 @@ Items_tier2_d = {"a Knfoon": "A knife, a fork and a spoon all in one?\n~Sign me 
                  "sandpaper glove": "Put the smooth side your way and the\n~rough one the enemies...\n",
                  "rollerskating gear": "May not look the coolest but it\nprovides some protection.\n~Even when not skating!\n"}
 
+Items_tier3_d = {"the weebs katana": "A completely overestimated\n~weapon inferior to any\n~european sword of that\n~era, loved by neckbeards\n",
+                 "a potato peeler": "The name is missleading\n~You can peel anyting\n~with it\n",
+                 "an ants infested anorak": "A thick and durable\n~jacket with a whole\n~lot of bonus-ants\n",
+                 "a porcupine-fur west": "Fashionable and spiky\n",
+                 "roller skates": "Just watch me\n~zoom around!\n",
+                 "mom-made woolen socks": "Made with love\n~slippery as heck\n"}
+
+Items_tier4_d = {"a kinky whip": "Just make sure to\n~hit hard enough...\n",
+                 "a Dreihänder": "Back in the day\n~few would have been\n~able to wield this baby\n",
+                 "an ants-crawling fursuit": "Strange how all\n~of them are of such\n~colorfull predators...\n~One of the weirder\n~fetishes...\n",
+                 "a stinky bucket": "One mans toilet is\n~another mans armor\n",
+                 "grannies woolen sweater": "So ichy but so\n~cosy...\n",
+                 "inline skates": "The evolution of\n~roller skates.\n~Watch me zoom\n~even harder!\n"}
+
+Items_tier5_d = {"Durandal": "The mythical blade of\n~Roland of Charlemagne\n~said to be the sharpest\n~of all swords\n",
+                 "a Totschläger": "A brutal weapon for\n~schlaging your enemies\n~tot...\n",
+                 "a templars helmet": "The most righteous\n~knights with the coolest\n~armor. The Templar sure\n~were cool dudes...\n",
+                 "a full ant-armor": "Cut the infestation\nI am wearing them raw\n",
+                 "Heelys": "They are boots but\n~they are also skates!\n~Amazing!\n",
+                 "boots full of lube": "Hit me!\n~If you can...\n"}
+
 potion_d = {"a mysterious liquid": "Could be good, could be bad...\n~Only one way to find out ¯\\_(ツ)_/¯\n"}
 
 # Potions are added multiple times to increase the drop chance since they are pretty essential
 items1 = list(Items_tier1.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
 items2 = list(Items_tier2.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
-descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(potion_d.items()) + list(quests_d.items())
+items3 = list(Items_tier3.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
+items4 = list(Items_tier4.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
+items5 = list(Items_tier5.items()) + list(potion.items()) + list(quests_item.items()) + list(potion_d.items()) + list(potion_d.items())
+descriptions = list(Items_tier1_d.items()) + list(Items_tier2_d.items()) + list(Items_tier3_d.items()) + list(Items_tier4_d.items())+ list(Items_tier5_d.items()) + list(potion_d.items()) + list(quests_d.items())
 
 
 def get_item(tier):
     if tier == 1:
         item = choice(items1)
-    else:
+    elif tier == 2:
         item = choice(items2)
+    elif tier == 3:
+        item = choice(items3)
+    elif tier == 4:
+        item = choice(items4)
+    else:
+        item = choice(items5)
     return Item(item[0], item[1], tier)
 
 
@@ -119,6 +170,24 @@ synonyms = {"a sharp rock": ["a sharp rock", "sharp rock", "rock", "the sharp ro
             "a charred diary": ["charred diary", "a charred diary", "Charred diary", "Charred Diary", "diary", "Diary", "the diary"],
             "a humanoid-ish skull": ["a humanoid-ish skull", "humanoid-ish skull", "Skull", "skull", "Humanoid-ish skull"],
             "a talking book": ["a talking book", "talking book", "book", "Book", "Talking book", "the talking book"],
-            "broken electronics": ["broken electronics", "Broken electronics", "Broken Electronics", "electronics", "Electronics"]}
+            "broken electronics": ["broken electronics", "Broken electronics", "Broken Electronics", "electronics", "Electronics"],
+            "the weebs katana": ["the weebs katana", "a weebs katana", "weebs katana", "Weebs katana", "katana", "Katana"],
+            "a potato peeler": ["a potato peeler", "the potato peeler", "potato peeler", "Potato peeler", "peeler", "Peeler"],
+            "an ants infested anorak": ["an ants infested anorak", "the ants infested anorak", "ants infested anorak", "Ants infested anorak", "infested anorak", "Infested anorak", "anorak", "Anorak"],
+            "a porcupine-fur west": ["a porcupine-fur west", "the porcupine-fur west", "porcupine-fur west", "Porcupine-fur west", "west", "West"],
+            "roller skates": ["roller skates", "Roller skates"],
+            "mom-made woolen socks": ["mom-made woolen socks", "Mom-made woolen socks", "woolen socks", "Woolen socks", "socks", "Socks"],
+            "a kinky whip": ["a kinky whip", "the kinky whip", "kinky whip", "Kinky whip", "whip", "Whip"],
+            "a Dreihänder": ["a Dreihänder", "the Dreihänder", "Dreihänder", "dreihänder"],
+            "an ants-crawling fursuit": ["an ants-crawling fursuit", "the ants-crawling fursuit", "ants-crawling fursuit", "Ants-crawling fursuit", "fursuit", "Fursuit"],
+            "a stinky bucket": ["a stinky bucket", "the stinky bucket", "stinky bucket", "Stinky bucket", "bucket", "Bucket"],
+            "grannies woolen sweater": ["grannies woolen sweater", "Grannies woolen sweater", "woolen sweater", "Woolen sweater", "sweater", "Sweater"],
+            "inline skates": ["inline skates", "Inline skates", "skates", "Skates"],
+            "Durandal": ["Durandal", "durandal", "Durendal", "durendal"],
+            "a Totschläger": ["a Totschläger", "the Totschläger", "Totschläger", "totschläger", "Totschlager", "Totschlaeger", "totschlager", "totschlaeger"],
+            "a templars helmet": ["a templars helmet", "the templars helmet", "templars helmet", "Templars helmet", "templar helmet", "Templar helmet", "helmet", "Helmet"],
+            "a full ant-armor": ["a full ant-armor", "the full ant-armor", "full ant-armor", "Full ant-armor", "ant-armor", "Ant-armor"],
+            "Heelys": ["Heelys", "heelys"],
+            "boots full of lube": ["boots full of lube", "Boots full of lube", "boots", "Boots"]}
 
 DB.metadata.create_all(engine)
