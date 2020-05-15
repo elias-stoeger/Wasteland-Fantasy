@@ -764,7 +764,7 @@ def prep_square(last_square):
                 Screen.insert(INSERT, "You see a gambler but he seems busy...\n")
             elif appear_npc(World.current_Square.NPCs.name) == "trade":
                 Screen.insert(INSERT, "You see a trader but he seems busy...\n")
-    if last_square.music is not World.current_Square.music:
+    if last_square.music != World.current_Square.music:
         mixer_music.fadeout(500)
         mixer_music.load(f"Music/{World.current_Square.music}.mp3")
         mixer_music.play(-1)
