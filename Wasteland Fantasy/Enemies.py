@@ -22,8 +22,8 @@ class Enemy(DB):
         self.ID = str(uuid1())
         self.tier = tier
         self.name = self.enemy()
-        self.hp = choice([tier + 1, tier + 2, tier + 3, tier * 2 + 1, tier * 2 + 1])
-        self.dmg = choice([tier + 1, tier + 2])
+        self.hp = choice([tier * 5 // 4 + 1, tier * 5 // 4 + 2, tier * 5 // 4 + 3])
+        self.dmg = choice([tier * 5 // 3 + 1, tier * 5 // 3 + 2])
         self.extraUniqueID = str(uuid1(2))
 
     def enemy(self):
@@ -49,7 +49,9 @@ NPC = ["Gambler", "Trader", "Guide"]
 
 def appear(enemy):
     Appearances_Enemy = [f"\nWatch out!\nYou see {enemy} charging at you\n",
-                         f"\nYou just barely manage to dodge the mighty first\nsweep of {enemy}\n"]
+                         f"\nYou just barely manage to dodge the mighty first\nsweep of {enemy}\n",
+                         f"\nYou feel a gust of wind hit your face as the\nstrike of {enemy}\nmisses you by a hairs width\n",
+                         f"\nYou barely manage to react to the bite of\n{enemy}!\n"]
     return choice(Appearances_Enemy)
 
 

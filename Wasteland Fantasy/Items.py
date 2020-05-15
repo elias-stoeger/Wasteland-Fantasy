@@ -48,27 +48,27 @@ Items_tier1 = {"a sharp rock": [1, 0, 0],
 Items_tier2 = {"a Knfoon": [1, 0, 1],   # Knife + Fork + Spoon
                "a hand full of razor blades": [2, 0, 0],
                "Pants with Ants": [0, 0, 2],
-               "fluffy mittens": [0, 2, 0],
+               "fluffy mittens": [0, 1, 1],
                "sandpaper glove": [1, 1, 0],
                "rollerskating gear": [0, 1, 1]}
 
 Items_tier3 = {"the weebs katana": [2, 0, 1],
                "a potato peeler": [3, 0, 0],
-               "an ants-infested anorak": [0, 2, 1],
-               "a porcupine-fur west": [1, 2, 0],
+               "an ants-infested anorak": [1, 1, 1],
+               "a porcupine-fur coat": [1, 1, 1],
                "roller skates": [1, 0, 2],
                "mom-made woolen socks": [0, 1, 2]}
 
 Items_tier4 = {"a kinky whip": [3, 0, 1],
                "a Dreihänder": [3, 1, 0],
-               "an ants-crawling fursuit": [1, 3, 0],
-               "a stinky bucket": [0, 3, 1],
+               "an ants-crawling fursuit": [1, 2, 1],
+               "a stinky bucket": [1, 2, 1],
                "grannies woolen sweater": [0, 2, 2],
                "inline skates": [1, 0, 3]}
 
 Items_tier5 = {"Durandal": [5, 0, 0],
                "a Totschläger": [4, 1, 0],
-               "a templars helmet": [1, 4, 0],
+               "a templars helmet": [2, 3, 0],
                "a full ant-armor": [1, 3, 1],
                "Heelys": [1, 1, 3],
                "boots full of lube": [0, 2, 3]}
@@ -110,7 +110,7 @@ Items_tier2_d = {"a Knfoon": "A knife, a fork and a spoon all in one?\n~Sign me 
 Items_tier3_d = {"the weebs katana": "A completely overestimated\n~weapon inferior to any\n~european sword of that\n~era, loved by neckbeards\n",
                  "a potato peeler": "The name is missleading\n~You can peel anyting\n~with it\n",
                  "an ants-infested anorak": "A thick and durable\n~jacket with a whole\n~lot of bonus-ants\n",
-                 "a porcupine-fur west": "Fashionable and spiky\n",
+                 "a porcupine-fur coat": "Fashionable and spiky\n",
                  "roller skates": "Just watch me\n~zoom around!\n",
                  "mom-made woolen socks": "Made with love\n~slippery as heck\n"}
 
@@ -174,7 +174,7 @@ synonyms = {"a sharp rock": ["a sharp rock", "sharp rock", "rock", "the sharp ro
             "the weebs katana": ["the weebs katana", "a weebs katana", "weebs katana", "Weebs katana", "katana", "Katana"],
             "a potato peeler": ["a potato peeler", "the potato peeler", "potato peeler", "Potato peeler", "peeler", "Peeler"],
             "an ants-infested anorak": ["an ants-infested anorak", "the ants-infested anorak", "ants-infested anorak", "Ants-infested anorak", "infested anorak", "Infested anorak", "anorak", "Anorak"],
-            "a porcupine-fur west": ["a porcupine-fur west", "the porcupine-fur west", "porcupine-fur west", "Porcupine-fur west", "west", "West"],
+            "a porcupine-fur coat": ["a porcupine-fur coat", "the porcupine-fur coat", "porcupine-fur coat", "Porcupine-fur coat", "coat", "Coat"],
             "roller skates": ["roller skates", "Roller skates"],
             "mom-made woolen socks": ["mom-made woolen socks", "Mom-made woolen socks", "woolen socks", "Woolen socks", "socks", "Socks"],
             "a kinky whip": ["a kinky whip", "the kinky whip", "kinky whip", "Kinky whip", "whip", "Whip"],

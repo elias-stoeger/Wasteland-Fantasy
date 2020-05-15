@@ -460,7 +460,7 @@ def enter(event=None):
                 if Player.inventory[found] == Everything.Trade[1]:
                     Player.inventory.remove(Player.inventory[found])
                     Player.inventory.append(Everything.Trade[0])
-                    Player.current_hp -= Player.current_hp // 2
+                    Player.current_hp -= Player.current_hp // 4
                     Everything.trading = False
                     found = -1
                 else:
@@ -476,8 +476,8 @@ def enter(event=None):
                         found = -1
                     else:
                         found += 1
-                Everything.inventory_uptodate = False
-                Everything.character_uptodate = False
+            Everything.inventory_uptodate = False
+            Everything.character_uptodate = False
         elif x in ["no", "No"]:
             Everything.trading = False
             Screen.insert(INSERT, "\n\"Get lost then....\"")
@@ -672,7 +672,7 @@ def enter(event=None):
             Screen.insert(INSERT, f"\nYou can't read {com[1]}\n\n")
     elif com == "look":
         if World.current_Square.coords in World.Quests:
-            item = get_item(Player.level // 3 + 1)
+            item = get_item(Player.level // 5 + 1)
             Screen.insert(INSERT, f"\nYou look around and... OH! What's that?\nYou find {item.Name}!\nYou put it in your backpack.\n\n")
             Player.inventory.append(item)
             Log.insert(INSERT, f"You found\n{item.Name}")
@@ -716,7 +716,7 @@ def drink_potion():
 
 
 def prep_square(last_square):
-    World.current_Square.tier = Player.level // 3 + 1
+    World.current_Square.tier = Player.level // 5 + 1
     rng = randint(0, 9)
     if World.current_Square.type is None:
         if rng > 1 and last_square.type != "start":
