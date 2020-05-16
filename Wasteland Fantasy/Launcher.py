@@ -998,7 +998,7 @@ def map_():
     yscroll.pack(side=RIGHT, fill=Y)
     xscroll.pack(side=BOTTOM, fill=X)
     Text_ = Text(Map_pop, bg="#CABB92", fg="black", relief="flat", highlightbackground="#CABB92",
-                 font=("DejaVu Sans Mono", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
+                 font=("Monospace", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
     Text_.tag_configure("center", justify='center')
     Text_.insert("1.0", m)
     Text_.pack(expand=False)
@@ -1130,6 +1130,7 @@ def save():
         for item in all_items:
             if not isinstance(item, str):
                 item.boni = str(item.boni)[1:-1]
+                item.extraUniqueID = str(uuid1(2))
                 session.add(item)
 
     # logs

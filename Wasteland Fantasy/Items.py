@@ -9,12 +9,13 @@ engine = create_engine("sqlite:///Database.db", echo=False)
 
 class Item(DB):
     __tablename__ = "items"
-    ID = Column(String, primary_key=True)
+    ID = Column(String)
     Name = Column(String)
     boni = Column(String)
     description = Column(String)
     type = Column(String)
     tier = Column(Integer)
+    extraUniqueID = Column(String, primary_key=True)
 
     def __init__(self, name, boni, tier):
         self.ID = str(uuid1())
@@ -23,6 +24,7 @@ class Item(DB):
         self.description = self.get_description()
         self.types = self.get_types()   # gear or potion
         self.tier = tier
+        self.extraUniqueID = str(uuid1(2))
 
     def get_description(self):
         for item in descriptions:
