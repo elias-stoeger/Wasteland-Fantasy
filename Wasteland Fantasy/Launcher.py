@@ -645,11 +645,17 @@ def enter(event=None):
         Everything.character_uptodate = False
         Everything.inventory_uptodate = False
     elif com == "score":
+        chmod("scores.txt", S_IWUSR | S_IREAD)
+        with open(fileName, "r") as file1:
+            Score1 = file1.read().split(",")
+            if Score1 == [""] or Score1 == []:
+                Score1 = None
+        chmod("scores.txt", S_IREAD)
         if Score is not None:
             Screen.delete("0.1", END)
-            Screen.insert(INSERT, f"Best run:\n{Score[0]}, a vagabond of {Score[1]} descent...\n"
-                                  f"reached level {Score[2]}\n\n"
-                                  f"You lived and died a total of {Score[3]} times...\n\n")
+            Screen.insert(INSERT, f"Best run:\n{Score1[0]}, a vagabond of {Score1[1]} descent...\n"
+                                  f"reached level {Score1[2]}\n\n"
+                                  f"You lived and died a total of {Score1[3]} times...\n\n")
         else:
             Screen.insert(INSERT, "\nNo scores saved...\n\n")
     elif com == "read_w":
@@ -998,8 +1004,7 @@ def map_():
     yscroll.pack(side=RIGHT, fill=Y)
     xscroll.pack(side=BOTTOM, fill=X)
     Text_ = Text(Map_pop, bg="#CABB92", fg="black", relief="flat", highlightbackground="#CABB92",
-                 font=("Monospace", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
-    Text_.tag_configure("center", justify='center')
+                 font=("DejaVu Sans Mono", 14), yscrollcommand=yscroll.set, xscrollcommand=xscroll.set, wrap=NONE)
     Text_.insert("1.0", m)
     Text_.pack(expand=False)
     yscroll.config(command=Text_.yview)

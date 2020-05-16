@@ -60,11 +60,9 @@ class World_(DB):
                 elif checker in self.Quests:
                     Map.append("XX")
                 elif checker in allcoords:
-                    Map.append("░░")
+                    Map.append("[]")
                 else:
-                    # make a nice little forrest that happens to be
-                    # the exact same size as all squares (͡ ° ͜ʖ ͡ °)
-                    Map.append(choice(["↟ ", " ↟", "҂↟", "  "]))      # ҂ ҇ ͡
+                    Map.append(choice(["¥ ", " ¥", "ΐ ", " ΐ", "  ", "  ", "~~", "~ ", " ~"]))
             if max(xcoords) > 13:
                 Map.append(" ")
             elif min(xcoords) < -13:
