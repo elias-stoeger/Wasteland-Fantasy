@@ -469,6 +469,7 @@ def enter(event=None):
                 found -= found
                 while found != -1 and found <= len(Player.equipped) - 1:
                     if Player.equipped[found] == Everything.Trade[1]:
+                        loose_stats(Everything.Trade[1].boni)
                         Player.equipped.remove(Player.equipped[found])
                         Player.inventory.append(Everything.Trade[0])
                         Player.current_hp -= Player.current_hp // 4
@@ -651,7 +652,7 @@ def enter(event=None):
             if Score1 == [""] or Score1 == []:
                 Score1 = None
         chmod("scores.txt", S_IREAD)
-        if Score is not None:
+        if Score1 is not None:
             Screen.delete("0.1", END)
             Screen.insert(INSERT, f"Best run:\n{Score1[0]}, a vagabond of {Score1[1]} descent...\n"
                                   f"reached level {Score1[2]}\n\n"
