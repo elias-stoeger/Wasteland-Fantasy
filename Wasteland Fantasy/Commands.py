@@ -15,7 +15,7 @@ def commands(command):
     whisp = r"[w|W]hispling"
     void = r"[v|V]oidspawn"
     ursine = r"[u|U]rsine"
-    attack = r"^[a|A]ttack|^[h|H]it|^[s|S]trike|^[s|S]ma[sh|ck]"
+    attack = r"^[a|A]ttack|^[h|H]it|^[s|S]trike|^[s|S]ma[sh|ck]|^[f|F]ight"
     flee = r"^[r|R]un\s?|^[f|F]lee\s?"
     take = r"^[t|T]ake|^[p|P]ick\sup|^[g|G]et"
     equip = r"^[e|E]quip\s|^[p|P]ut\son"
